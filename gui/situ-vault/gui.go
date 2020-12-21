@@ -10,52 +10,139 @@ import (
 	"github.com/polarctos/situ-vault/pkg/vault"
 )
 
-type ui struct {
-	password   *widget.Entry
-	input      *widget.Entry
-	modes      *widget.RadioGroup
-	action     func()
-	clear      func()
-	output     *widget.Entry
-	outputCut  func()
-	outputCopy func()
+type operation string
+
+const (
+	Encrypt operation = "Encrypt"
+	Decrypt operation = "Decrypt"
+)
+
+var modes = []string{"AES256_GCM_PBKDF2_SHA256_ITER10K_SALT8_BASE32"}
+
+type model struct {
+	password string
+	input    string
+	mode     string
+	output   string
 }
 
-func newEncryptUi(showError func(error), getClipboard func() fyne.Clipboard) *ui {
+type ui struct {
+	password       *widget.Entry
+	passwordPaste  func()
+	passwordCopy   func()
+	input          *widget.Entry
+	inputPaste     func()
+	modes          *widget.RadioGroup
+	action         func()
+	clear          func()
+	output         *widget.Entry
+	outputCut      func()
+	outputCopy     func()
+	clearClipboard func()
+}
+
+func newUi(model *model, action func(), refresh func(), getClipboard func() fyne.Clipboard) *ui {
 	u := &ui{}
 	u.password = widget.NewPasswordEntry()
 	u.input = widget.NewMultiLineEntry()
-
-	modes := []string{"AES256_GCM_PBKDF2_SHA256_ITER10K_SALT8_BASE32"}
+	u.input.Wrapping = fyne.TextWrapBreak
 	u.modes = widget.NewRadioGroup(modes, func(string) {})
 	u.modes.SetSelected(modes[0])
 
+	// there is no data binding in fyne yet, thus manually:
+	updateModelFromUi := func() {
+		model.password = u.password.Text
+		model.input = u.input.Text
+		model.mode = u.modes.Selected
+	}
+	updateUiFromModel := func() {
+		u.password.Text = model.password
+		u.input.Text = model.input
+		u.modes.Selected = model.mode
+		u.output.Text = model.output
+		refresh()
+	}
+
 	u.action = func() {
-		result, err := vault.Encrypt(u.input.Text, u.password.Text)
-		if err != nil {
-			showError(err)
-		} else {
-			u.output.SetText(result)
-		}
+		updateModelFromUi()
+		action()
+		updateUiFromModel()
 	}
 	u.clear = func() {
-		u.password.SetText("")
-		u.input.SetText("")
-		u.output.SetText("")
+		model.password = ""
+		model.input = ""
+		model.output = ""
+		updateUiFromModel()
 	}
 
 	u.output = widget.NewMultiLineEntry()
 	u.output.Wrapping = fyne.TextWrapBreak
 	u.output.Disable()
 	u.outputCut = func() {
-		getClipboard().SetContent(u.output.Text)
-		u.output.SetText("")
+		getClipboard().SetContent(model.output)
+		model.output = ""
+		updateUiFromModel()
+
 	}
 	u.outputCopy = func() {
-		getClipboard().SetContent(u.output.Text)
+		getClipboard().SetContent(model.output)
+	}
+
+	u.passwordCopy = func() {
+		updateModelFromUi()
+		getClipboard().SetContent(model.password)
+	}
+	u.passwordPaste = func() {
+		updateModelFromUi()
+		model.password = getClipboard().Content()
+		updateUiFromModel()
+	}
+	u.inputPaste = func() {
+		updateModelFromUi()
+		model.input = getClipboard().Content()
+		updateUiFromModel()
+	}
+
+	u.clearClipboard = func() {
+		getClipboard().SetContent("")
 	}
 
 	return u
+}
+
+func newEncryptUi(refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
+	model := newModel()
+	action := func() {
+		result, err := vault.Encrypt(model.input, model.password)
+		if err != nil {
+			showError(err)
+		} else {
+			model.output = result
+		}
+	}
+	return newUi(model, action, refresh, getClipboard)
+}
+
+func newDecryptUi(refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
+	model := newModel()
+	action := func() {
+		result, err := vault.Decrypt(model.input, model.password)
+		if err != nil {
+			showError(err)
+		} else {
+			model.mode = modes[0] // FIXME needed next to decryption result if multiple modes exist
+			model.output = result
+		}
+	}
+	return newUi(model, action, refresh, getClipboard)
+}
+
+func newModel() *model {
+	return &model{
+		password: "",
+		input:    "",
+		mode:     modes[0],
+	}
 }
 
 func main() {
@@ -73,47 +160,81 @@ func main() {
 		return w.Clipboard() // clipboard only available when window was shown
 	}
 
-	u := newEncryptUi(showError, getClipboard)
+	var encryptTab *fyne.Container
+	encryptUi := newEncryptUi(func() { encryptTab.Refresh() }, showError, getClipboard)
+	encryptTab = uiTabDesign(encryptUi, Encrypt)
 
-	infoText := widget.NewLabel("Encrypts text data using the selected algorithm.")
+	var decryptTab *fyne.Container
+	decryptUi := newDecryptUi(func() { decryptTab.Refresh() }, showError, getClipboard)
+	decryptTab = uiTabDesign(decryptUi, Decrypt)
+
+	appTabs := container.NewAppTabs(
+		container.NewTabItem("Encrypt", encryptTab),
+		container.NewTabItem("Decrypt", decryptTab),
+	)
+
+	w.SetContent(appTabs)
+	w.ShowAndRun()
+}
+
+func uiTabDesign(ui *ui, op operation) *fyne.Container {
+	infoText := widget.NewLabel(string(op) + "s text data using the selected algorithm.")
+
+	var inputName string
+	switch op {
+	case Encrypt:
+		inputName = "Cleartext"
+	case Decrypt:
+		inputName = "Ciphertext"
+	}
 
 	form := &widget.Form{
 		Items: []*widget.FormItem{
-			{Text: "Password:", Widget: u.password},
-			{Text: "Cleartext:", Widget: u.input},
-			{Text: "Mode:", Widget: u.modes},
+			{Text: "Password:", Widget: container.NewVBox(
+				ui.password,
+				widget.NewToolbar(
+					NewToolbarLabeledAction(theme.ContentPasteIcon(), "Paste", ui.passwordPaste),
+					NewToolbarLabeledAction(theme.ContentCopyIcon(), "Copy", ui.passwordCopy),
+				),
+			)},
+			{Text: inputName + ":", Widget: container.NewVBox(
+				ui.input,
+				widget.NewToolbar(
+					NewToolbarLabeledAction(theme.ContentPasteIcon(), "Paste", ui.inputPaste)),
+			)},
 		},
-		OnSubmit:   u.action,
-		OnCancel:   u.clear,
-		SubmitText: "Encrypt",
+		OnSubmit:   ui.action,
+		OnCancel:   ui.clear,
+		SubmitText: string(op),
 		CancelText: "Clear",
 	}
-
 	toolbar := widget.NewToolbar(
-		widget.NewToolbarAction(theme.ContentCutIcon(), u.outputCut),
-		widget.NewToolbarAction(theme.ContentCopyIcon(), u.outputCopy),
+		NewToolbarLabeledAction(theme.ContentCutIcon(), "Cut", ui.outputCut),
+		NewToolbarLabeledAction(theme.ContentCopyIcon(), "Copy", ui.outputCopy),
 	)
-
 	result := &widget.Form{
 		Items: []*widget.FormItem{
-			{Text: "Encrypted:", Widget: container.NewVBox(u.output, toolbar)},
+			{Text: string(op) + "ed:", Widget: container.NewVBox(ui.output, toolbar)},
 		},
+		OnCancel:   ui.clearClipboard,
+		CancelText: "Clear Clipboard",
+	}
+
+	// mode is either before or after the separator:
+	mode := widget.NewFormItem("Mode:", ui.modes)
+	switch op {
+	case Encrypt:
+		form.Items = append(form.Items, mode)
+	case Decrypt:
+		result.Items = append([]*widget.FormItem{mode}, result.Items...)
 	}
 
 	separator := widget.NewSeparator()
 
-	boxEncrypt := container.NewVBox(
+	return container.NewVBox(
 		infoText,
 		form,
 		separator,
 		result,
 	)
-	boxDecrypt := container.NewCenter(widget.NewLabel("TODO!"))
-	appTabs := container.NewAppTabs(
-		container.NewTabItem("Encrypt", boxEncrypt),
-		container.NewTabItem("Decrypt", boxDecrypt),
-	)
-
-	w.SetContent(appTabs)
-	w.ShowAndRun()
 }
