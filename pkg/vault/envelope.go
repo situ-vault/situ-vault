@@ -1,7 +1,7 @@
 package vault
 
 import (
-	"log"
+	"errors"
 	"strings"
 )
 
@@ -15,13 +15,13 @@ func buildEnvelope(salt string, cipherText string) string {
 	return prefix + separator + mode + separator + salt + separator + cipherText
 }
 
-func openEnvelope(data string) (salt string, cipherText string) {
+func openEnvelope(data string) (salt string, cipherText string, err error) {
 	split := strings.Split(data, separator)
 	if split[0] != prefix {
-		log.Fatal("unknown input")
+		return "", "", errors.New("unknown input")
 	}
 	if split[1] != mode {
-		log.Fatal("unknown mode")
+		return "", "", errors.New("unknown mode")
 	}
-	return split[2], split[3]
+	return split[2], split[3], nil
 }

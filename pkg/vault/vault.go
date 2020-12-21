@@ -9,8 +9,19 @@ func Encrypt(clearText string, password string) (string, error) {
 }
 
 func Decrypt(cipherText string, password string) (string, error) {
-	salt, encrypted := openEnvelope(cipherText)
-	key := deriveKey([]byte(password), decode(salt))
-	decrypted, err := decrypt(decode(encrypted), key)
+	salt, encrypted, err := openEnvelope(cipherText)
+	if err != nil {
+		return "", err
+	}
+	s, err := decode(salt)
+	if err != nil {
+		return "", err
+	}
+	key := deriveKey([]byte(password), s)
+	e, err := decode(encrypted)
+	if err != nil {
+		return "", err
+	}
+	decrypted, err := decrypt(e, key)
 	return string(decrypted), err
 }

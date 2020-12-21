@@ -14,11 +14,8 @@ func encrypt(data []byte, key *key) ([]byte, error) {
 	// standard nonce length: 12 bytes
 	// standard tag length: 16 bytes
 	aesGcm, err := cipher.NewGCM(block)
-	if err != nil {
-		log.Fatal(err)
-	}
 	ciphertext := aesGcm.Seal(nil, key.iv, data, nil)
-	return ciphertext, nil
+	return ciphertext, err
 }
 
 func decrypt(data []byte, key *key) ([]byte, error) {
@@ -28,11 +25,8 @@ func decrypt(data []byte, key *key) ([]byte, error) {
 	}
 	aesGcm, err := cipher.NewGCM(block)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	plaintext, err := aesGcm.Open(nil, key.iv, data, nil)
-	if err != nil {
-		panic(err.Error())
-	}
-	return plaintext, nil
+	return plaintext, err
 }
