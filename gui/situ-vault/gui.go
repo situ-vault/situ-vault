@@ -3,11 +3,14 @@ package main
 import (
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
+	"fyne.io/fyne/canvas"
 	"fyne.io/fyne/container"
 	"fyne.io/fyne/dialog"
+	"fyne.io/fyne/layout"
 	"fyne.io/fyne/theme"
 	"fyne.io/fyne/widget"
 	"github.com/polarctos/situ-vault/pkg/vault"
+	"image/color"
 )
 
 type operation string
@@ -173,12 +176,20 @@ func main() {
 		container.NewTabItem("Decrypt", decryptTab),
 	)
 
-	w.SetContent(appTabs)
+	// workaround to give it a bit more space to breathe
+	space := canvas.NewRectangle(color.White)
+	space.SetMinSize(fyne.NewSize(20, 20))
+	content := fyne.NewContainerWithLayout(
+		layout.NewBorderLayout(space, space, space, space),
+		appTabs,
+	)
+
+	w.SetContent(content)
 	w.ShowAndRun()
 }
 
 func uiTabDesign(ui *ui, op operation) *fyne.Container {
-	infoText := widget.NewLabel(string(op) + "s text data using the selected algorithm.")
+	infoText := widget.NewLabel(string(op) + "s text data using the selected algorithm.\n")
 
 	var inputName string
 	switch op {
@@ -229,12 +240,16 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 		result.Items = append([]*widget.FormItem{mode}, result.Items...)
 	}
 
+	space := widget.NewLabel("")
 	separator := widget.NewSeparator()
 
 	return container.NewVBox(
+		space,
 		infoText,
 		form,
+		space,
 		separator,
+		space,
 		result,
 	)
 }
