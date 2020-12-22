@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"golang.org/x/crypto/argon2"
 	"golang.org/x/crypto/pbkdf2"
+	"golang.org/x/crypto/scrypt"
 )
 
 const (
@@ -31,6 +32,18 @@ func deriveKeyArgon2id(password []byte, salt []byte) *key {
 	var memory uint32 = 64 * 1024
 	var threads uint8 = 4
 	kdfResult := argon2.IDKey(password, salt, time, memory, threads, keyLength+ivLength)
+	return splitKdfResult(kdfResult)
+}
+
+func deriveKeyScrypt(password []byte, salt []byte) *key {
+	// recommended values from the golang documentation
+	var N = 1 << 15 // N is a CPU/memory cost parameter, power of two greater than 1. here 32768
+	var r = 8       // r and p must satisfy r * p < 2³⁰
+	var p = 1
+	kdfResult, err := scrypt.Key(password, salt, N, r, p, keyLength+ivLength)
+	if err != nil {
+		panic(err)
+	}
 	return splitKdfResult(kdfResult)
 }
 
