@@ -7,12 +7,12 @@ import (
 
 type ToolbarLabeledAction struct {
 	Icon        fyne.Resource
-	Label 		string
+	Label       string
 	OnActivated func()
 }
 
 func NewToolbarLabeledAction(icon fyne.Resource, label string, onActivated func()) widget.ToolbarItem {
-	return &ToolbarLabeledAction{icon,label, onActivated}
+	return &ToolbarLabeledAction{icon, label, onActivated}
 }
 
 func (t ToolbarLabeledAction) ToolbarObject() fyne.CanvasObject {

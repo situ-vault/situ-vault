@@ -9,21 +9,19 @@ import (
 	"testing"
 )
 
+var predefined = testdata.PredefinedDecrypt()
+
 func Test_main(t *testing.T) {
 	oldArgs := os.Args
 	defer func() { os.Args = oldArgs }()
 
-	cleartext := "test-data"
-
-	os.Args = []string{"situ-vault", "encrypt", "-password=test-pw", "-cleartext=" + cleartext}
+	os.Args = []string{"situ-vault", "encrypt", "-password=test-pw", "-cleartext=test-data"}
 	outputEncrypt := captureOutput(main)
 	assert.Contains(t, outputEncrypt, "SITU_VAULT")
-	assert.NotContains(t, outputEncrypt, cleartext)
 
-	ciphertextPredefined := "SITU_VAULT_V1##AES256_GCM_PBKDF2_SHA256_ITER10K_SALT8_BASE32##TNSIVLVV6EOGI===##GRDENILPW24R4YDA2I6MKT6JPLG5GM2HWC5S2PR7"
-	os.Args = []string{"situ-vault", "decrypt", "-password=test-pw", "-ciphertext=" + ciphertextPredefined}
+	os.Args = []string{"situ-vault", "decrypt", "-password=" + predefined.Password, "-ciphertext=" + predefined.Ciphertext}
 	outputDecrypt := captureOutput(main)
-	assert.Contains(t, outputDecrypt, cleartext)
+	assert.Contains(t, outputDecrypt, predefined.Cleartext)
 }
 
 func Test_handleCommand_roundTrip(t *testing.T) {

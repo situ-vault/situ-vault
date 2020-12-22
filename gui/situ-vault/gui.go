@@ -2,7 +2,6 @@ package main
 
 import (
 	"fyne.io/fyne"
-	"fyne.io/fyne/app"
 	"fyne.io/fyne/canvas"
 	"fyne.io/fyne/container"
 	"fyne.io/fyne/dialog"
@@ -21,6 +20,19 @@ const (
 )
 
 var modes = []string{"AES256_GCM_PBKDF2_SHA256_ITER10K_SALT8_BASE32"}
+
+type experience struct {
+	model map[operation]*model
+	ui    map[operation]*ui
+}
+
+func newExperience() *experience {
+	exp := &experience{
+		model: make(map[operation]*model),
+		ui:    make(map[operation]*ui),
+	}
+	return exp
+}
 
 type model struct {
 	password string
@@ -113,8 +125,7 @@ func newUi(model *model, action func(), refresh func(), getClipboard func() fyne
 	return u
 }
 
-func newEncryptUi(refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
-	model := newModel()
+func newEncryptUi(model *model, refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
 	action := func() {
 		result, err := vault.Encrypt(model.input, model.password)
 		if err != nil {
@@ -126,8 +137,7 @@ func newEncryptUi(refresh func(), showError func(error), getClipboard func() fyn
 	return newUi(model, action, refresh, getClipboard)
 }
 
-func newDecryptUi(refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
-	model := newModel()
+func newDecryptUi(model *model, refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
 	action := func() {
 		result, err := vault.Decrypt(model.input, model.password)
 		if err != nil {
@@ -148,10 +158,9 @@ func newModel() *model {
 	}
 }
 
-func main() {
-	a := app.New()
+func (exp *experience) loadUi(application fyne.App) {
 
-	w := a.NewWindow("situ-vault")
+	w := application.NewWindow("situ-vault")
 	w.SetFixedSize(true)
 	w.Resize(fyne.NewSize(800, 500))
 
@@ -164,12 +173,18 @@ func main() {
 	}
 
 	var encryptTab *fyne.Container
-	encryptUi := newEncryptUi(func() { encryptTab.Refresh() }, showError, getClipboard)
+	encryptModel := newModel()
+	encryptUi := newEncryptUi(encryptModel, func() { encryptTab.Refresh() }, showError, getClipboard)
 	encryptTab = uiTabDesign(encryptUi, Encrypt)
+	exp.model[Encrypt] = encryptModel
+	exp.ui[Encrypt] = encryptUi
 
 	var decryptTab *fyne.Container
-	decryptUi := newDecryptUi(func() { decryptTab.Refresh() }, showError, getClipboard)
+	decryptModel := newModel()
+	decryptUi := newDecryptUi(decryptModel, func() { decryptTab.Refresh() }, showError, getClipboard)
 	decryptTab = uiTabDesign(decryptUi, Decrypt)
+	exp.model[Decrypt] = decryptModel
+	exp.ui[Decrypt] = decryptUi
 
 	appTabs := container.NewAppTabs(
 		container.NewTabItem("Encrypt", encryptTab),
@@ -185,7 +200,7 @@ func main() {
 	)
 
 	w.SetContent(content)
-	w.ShowAndRun()
+	w.Show()
 }
 
 func uiTabDesign(ui *ui, op operation) *fyne.Container {
