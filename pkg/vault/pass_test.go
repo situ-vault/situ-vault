@@ -22,7 +22,4 @@ func Test_deriveKey(t *testing.T) {
 	assert.EqualValues(t, expectedKey.iv, key.iv)
 }
 
-func Test_newSalt(t *testing.T) {
-	salt := newSalt()
-	assert.Len(t, salt, saltLength)
 }

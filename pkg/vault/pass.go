@@ -1,17 +1,14 @@
 package vault
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"golang.org/x/crypto/pbkdf2"
-	"log"
 )
 
 const (
 	keyLength  = 32    // for AES-256
 	ivLength   = 12    // common for AES-GCM
 	iterations = 10000 // reasonable default of OpenSSL
-	saltLength = 8     // size also used by OpenSSL
 )
 
 type key struct {
@@ -28,16 +25,4 @@ func deriveKey(password []byte, salt []byte) *key {
 	}
 }
 
-func newSalt() []byte {
-	salt, err := randomBytes(saltLength)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return salt
-}
 
-func randomBytes(length int) ([]byte, error) {
-	b := make([]byte, length)
-	_, err := rand.Read(b)
-	return b, err
-}
