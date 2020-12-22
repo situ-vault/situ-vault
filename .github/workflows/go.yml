@@ -11,6 +11,10 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module: ['pkg', 'cmd', 'gui']
+
     steps:
 
       - name: Set up Go
@@ -24,18 +28,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Get dependencies PKG
-        working-directory: pkg
+      - name: Get dependencies
+        working-directory: ${{ matrix.module }}
         run: go get -v -t -d ./...
 
-      - name: Test PKG
-        working-directory: pkg
-        run: go test -v ./...
-
-      - name: Get dependencies CMD
-        working-directory: cmd
-        run: go get -v -t -d ./...
-
-      - name: Test CMD
-        working-directory: cmd
+      - name: Test
+        working-directory: ${{ matrix.module }}
         run: go test -v ./...
