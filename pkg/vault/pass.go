@@ -9,7 +9,7 @@ import (
 
 const (
 	keyLength = 32 // for AES-256
-	ivLength  = 12 // common for AES-GCM
+	ivLength  = 24 // 12 common for AES-GCM but 24 for XSalsa20 and XChaCha
 )
 
 type key struct {

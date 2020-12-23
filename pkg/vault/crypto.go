@@ -9,17 +9,20 @@ import (
 	"log"
 )
 
+// AES-256-GCM (~ AES-CTR-GMAC)
 func encrypt(data []byte, key *key) ([]byte, error) {
 	block, err := aes.NewCipher(key.aesKey)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// standard nonce length: 12 bytes
+	var nonce [12]byte
+	copy(nonce[:], key.iv)
 	// standard tag length: 16 bytes
 	aesGcm, err := cipher.NewGCM(block)
-	ciphertext := aesGcm.Seal(nil, key.iv, data, nil)
+	encrypted := aesGcm.Seal(nil, nonce[:], data, nil)
 	// tag is contained in the result as the last bytes
-	return ciphertext, err
+	return encrypted, err
 }
 
 func decrypt(data []byte, key *key) ([]byte, error) {
@@ -31,16 +34,18 @@ func decrypt(data []byte, key *key) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	plaintext, err := aesGcm.Open(nil, key.iv, data, nil)
-	return plaintext, err
+	var nonce [12]byte
+	copy(nonce[:], key.iv)
+	decrypted, err := aesGcm.Open(nil, nonce[:], data, nil)
+	return decrypted, err
 }
 
+// XSalsa20-Poly1305
 func encryptSecretbox(data []byte, key *key) ([]byte, error) {
 	var secretKey [32]byte
 	copy(secretKey[:], key.aesKey)
 	var nonce [24]byte
 	copy(nonce[:], key.iv)
-	copy(nonce[12:], key.iv) // FIXME: golang documented nonce length: 24 bytes, we provide only 12
 	// often the result is appended to the nonce, here the nonce comes from the kdf instead
 	// however the API kind of expects appending, thus providing 1 byte and slicing afterwards
 	var out = make([]byte, 1)
@@ -53,7 +58,6 @@ func decryptSecretbox(data []byte, key *key) ([]byte, error) {
 	copy(secretKey[:], key.aesKey)
 	var nonce [24]byte
 	copy(nonce[:], key.iv)
-	copy(nonce[12:], key.iv) // FIXME
 	var out = make([]byte, 1)
 	decrypted, ok := secretbox.Open(out, data, &nonce, &secretKey)
 	var err error
@@ -71,7 +75,6 @@ func encryptXChaPo(data []byte, key *key) ([]byte, error) {
 	}
 	var nonce [24]byte
 	copy(nonce[:], key.iv)
-	copy(nonce[12:], key.iv) // FIXME: needed nonce length: 24 bytes, we provide only 12
 	var out = make([]byte, 1)
 	encrypted := aead.Seal(out, nonce[:], data, nil)
 	return encrypted[1:], err
@@ -84,7 +87,6 @@ func decryptXChaPo(data []byte, key *key) ([]byte, error) {
 	}
 	var nonce [24]byte
 	copy(nonce[:], key.iv)
-	copy(nonce[12:], key.iv) // FIXME
 	var out = make([]byte, 1)
 	decrypted, err := aead.Open(out, nonce[:], data, nil)
 	return decrypted[1:], err

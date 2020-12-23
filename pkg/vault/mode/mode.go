@@ -19,7 +19,7 @@ type Construct string
 
 const (
 	AES256_GCM         Construct = "AES256_GCM"         // AEAD; Standard: Nonce: 12 byte, Tag: 16 byte (year 2000/2007)
-	NACL_SECRETBOX     Construct = "NACL_SECRETBOX"     // AE; XSalsa20 and Poly1305 MAC; Standard: Nonce: 24 byte, Tag: 16 byte (year 2008)
+	NACL_SECRETBOX     Construct = "NACL_SECRETBOX"     // AE; XSalsa20-Poly1305; Standard: Nonce: 24 byte, Tag: 16 byte (year 2008)
 	XCHACHA20_POLY1305 Construct = "XCHACHA20_POLY1305" // AEAD; XChaCha20-Poly1305; Standard: Nonce: 24 byte, Tag: 16 byte (year 2008/2018)
 )
 
