@@ -1,0 +1,46 @@
+package main
+
+import (
+	"gopkg.in/yaml.v3"
+	"io/ioutil"
+	"log"
+	"os"
+)
+
+type Manifest struct {
+	Config Config   `json:"situVault" yaml:"situVault"`
+	Files  []string `json:"files" yaml:"files"`
+}
+type Config struct {
+	Password PasswordConfig `json:"password" yaml:"password"`
+}
+type PasswordConfig struct {
+	Env  string `json:"env,omitempty" yaml:"env,omitempty"`
+	File string `json:"file,omitempty" yaml:"file,omitempty"`
+}
+
+func main() {
+	if len(os.Args) < 2 {
+		log.Fatal("Wrong number of arguments:", os.Args)
+	}
+
+	// second argument is the file path
+	content, err := ioutil.ReadFile(os.Args[1])
+	if err != nil {
+		log.Fatal("Failed to read file: ", os.Args[1])
+	}
+
+	wd, err := os.Getwd()
+	if err != nil || len(os.Args) > 2 {
+		// overriding kustomize working directory, useful e.g. for tests
+		wd = os.Args[2]
+	}
+
+	var manifest Manifest
+	err = yaml.Unmarshal(content, &manifest)
+	if err != nil {
+		log.Fatalf("Error unmarshalling manifest: %q \n%s\n", err, content)
+	}
+
+	transform(&manifest, wd)
+}

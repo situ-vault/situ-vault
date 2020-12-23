@@ -9,19 +9,20 @@ spec:
       containers:
         - name: the-container
           image: monopole/hello:1
-          command: ["/hello",
-                    "--port=8080",
-                    "--enableRiskyFeature=$(ENABLE_RISKY)"]
+          command:
+            - "/hello"
+            - "--port=8080"
+            - "--enableRiskyFeature=$(ENABLE_RISKY)"
           ports:
             - containerPort: 8080
           env:
             - name: ALT_GREETING
               valueFrom:
-                configMapKeyRef:
-                  name: the-map
-                  key: altGreeting
+                secretKeyRef:
+                  name: secret-one
+                  key: greeting
             - name: ENABLE_RISKY
               valueFrom:
-                configMapKeyRef:
-                  name: the-map
-                  key: enableRisky
+                secretKeyRef:
+                  name: secret-one
+                  key: risky_flag
