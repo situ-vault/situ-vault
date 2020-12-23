@@ -6,7 +6,7 @@ package mode
 // new proposal:
 // "SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##TNSIVLVV6EOGI===##GRDENILPW24R4YDA2I6MKT6JPLG5GM2HWC5S2PR7"
 // WIP: "SITU_VAULT_V1##C:AES256_GCM#KDF:ARGON2ID_T1_M65536_C4#SALT:R8B#ENC:BASE64URL##YW55IGNhc===##jA0EAw_BBPOQhPfTDInn-94hXmnBr9D8-4x5"
-// WIP: "SITU_VAULT_V1##C:NACL_SECRETBOX#KDF:SYCRYPT_N32768_R8_P1#SALT:R16B#ENC:BASE64##YW55IGNhcm5hbCBwbGV===##jA0EAw/BBPOQhPfTDInn+94hXmnBr9D8+4x5"
+// WIP: "SITU_VAULT_V1##C:NACL_SECRETBOX#KDF:SCRYPT_N32768_R8_P1#SALT:R16B#ENC:BASE64##YW55IGNhcm5hbCBwbGV===##jA0EAw/BBPOQhPfTDInn+94hXmnBr9D8+4x5"
 
 type Mode struct {
 	Construct Construct             `code:"C"`
@@ -18,16 +18,17 @@ type Mode struct {
 type Construct string
 
 const (
-	AES256_GCM     Construct = "AES256_GCM"     // AEAD; Standard: Nonce: 12 byte, Tag: 16 byte
-	NACL_SECRETBOX Construct = "NACL_SECRETBOX" // XSalsa20 and Poly1305 MAC; Standard: Nonce: 24 byte, Tag: 16 byte
+	AES256_GCM         Construct = "AES256_GCM"         // AEAD; Standard: Nonce: 12 byte, Tag: 16 byte (year 2000/2007)
+	NACL_SECRETBOX     Construct = "NACL_SECRETBOX"     // AE; XSalsa20 and Poly1305 MAC; Standard: Nonce: 24 byte, Tag: 16 byte (year 2008)
+	XCHACHA20_POLY1305 Construct = "XCHACHA20_POLY1305" // AEAD; XChaCha20-Poly1305; Standard: Nonce: 24 byte, Tag: 16 byte (year 2008/2018)
 )
 
 type KeyDerivationFunction string
 
 const (
-	PBKDF2_SHA256_I10K    KeyDerivationFunction = "PBKDF2_SHA256_I10K"    // 10000 iterations, OpenSSL default
-	ARGON2ID_T1_M65536_C4 KeyDerivationFunction = "ARGON2ID_T1_M65536_C4" // parameters as of RFC
-	SYCRYPT_N32768_R8_P1  KeyDerivationFunction = "SYCRYPT_N32768_R8_P1"  // parameters as RFC with bigger N
+	PBKDF2_SHA256_I10K    KeyDerivationFunction = "PBKDF2_SHA256_I10K"    // 10000 iterations, OpenSSL default (year 2000)
+	ARGON2ID_T1_M65536_C4 KeyDerivationFunction = "ARGON2ID_T1_M65536_C4" // parameters as of RFC (year 2015)
+	SCRYPT_N32768_R8_P1   KeyDerivationFunction = "SCRYPT_N32768_R8_P1"   // parameters as RFC with bigger N (year 2009)
 )
 
 type Salt string

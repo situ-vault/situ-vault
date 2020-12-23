@@ -28,3 +28,15 @@ func Test_secretbox(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, cleartext, data)
 }
+
+func Test_XChaCha20Poly1305(t *testing.T) {
+	key := deriveKey([]byte("test-pw"), newSalt())
+	data := []byte("test-data")
+
+	ciphertext, err := encryptXChaPo(data, key)
+	assert.Nil(t, err)
+	assert.NotContains(t, ciphertext, data)
+	cleartext, err := decryptXChaPo(ciphertext, key)
+	assert.Nil(t, err)
+	assert.Equal(t, cleartext, data)
+}
