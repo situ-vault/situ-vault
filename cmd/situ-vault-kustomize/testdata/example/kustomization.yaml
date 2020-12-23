@@ -1,0 +1,10 @@
+# Based on the example from:
+# https://kubectl.docs.kubernetes.io/guides/extending_kustomize/execpluginguidedexample/
+
+commonLabels:
+  app: hello
+resources:
+  - deployment.yaml
+  - service.yaml
+generators:
+  - secrets.yaml
