@@ -1,12 +1,21 @@
 package mode
 
-// old:
-// "SITU_VAULT_V1##AES256_GCM_PBKDF2_SHA256_ITER10K_SALT8_BASE32##TNSIVLVV6EOGI===##GRDENILPW24R4YDA2I6MKT6JPLG5GM2HWC5S2PR7"
+import (
+	"fmt"
+	"reflect"
+	"strings"
+)
 
-// new proposal:
+// examples: (the mode is only the part following after "SITU_VAULT_V1##" until the next "##")
 // "SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##TNSIVLVV6EOGI===##GRDENILPW24R4YDA2I6MKT6JPLG5GM2HWC5S2PR7"
 // WIP: "SITU_VAULT_V1##C:AES256_GCM#KDF:ARGON2ID_T1_M65536_C4#SALT:R8B#ENC:BASE64URL##YW55IGNhc===##jA0EAw_BBPOQhPfTDInn-94hXmnBr9D8-4x5"
 // WIP: "SITU_VAULT_V1##C:NACL_SECRETBOX#KDF:SCRYPT_N32768_R8_P1#SALT:R16B#ENC:BASE64##YW55IGNhcm5hbCBwbGV===##jA0EAw/BBPOQhPfTDInn+94hXmnBr9D8+4x5"
+
+const (
+	code           string = `code` // field tag used to get the type prefix for the text representation from the struct
+	fieldSeparator string = `#`    // separator used in the text representation
+	codeSeparator  string = ":"
+)
 
 type Mode struct {
 	Construct Construct             `code:"C"`
@@ -46,3 +55,58 @@ const (
 	BASE64    Encoding = "BASE64"    // Base64
 	BASE64URL Encoding = "BASE64URL" // Base64 (URL safe variant)
 )
+
+func (m Mode) Text() string {
+	v := reflect.ValueOf(m)
+	var text string
+	for i := 0; i < v.NumField(); i++ {
+		code, found := v.Type().Field(i).Tag.Lookup(code)
+		if !found {
+			panic("Untagged mode field: " + v.Type().Field(i).Name)
+		}
+		fieldValue := fmt.Sprint(v.Field(i).Interface())
+		text += code + codeSeparator + fieldValue
+		if i != v.NumField()-1 {
+			text += fieldSeparator
+		}
+	}
+	return text
+}
+
+func NewMode(text string) *Mode {
+	split := strings.Split(text, fieldSeparator)
+	m := &Mode{
+		Construct: "",
+		Kdf:       "",
+		Salt:      "",
+		Encoding:  "",
+	}
+	v := reflect.Indirect(reflect.ValueOf(m))
+	if len(split) != v.NumField() {
+		panic("Incorrect mode text: " + text)
+	}
+	for i := 0; i < v.NumField(); i++ {
+		code, found := v.Type().Field(i).Tag.Lookup(code)
+		structFieldName := v.Type().Field(i).Name
+		if !found {
+			panic("Untagged mode field: " + structFieldName)
+		}
+		parts := strings.Split(split[i], codeSeparator)
+		fieldCode := parts[0]
+		if code != fieldCode {
+			panic("Incorrect mode order: " + text + " " + fieldCode)
+		}
+		fieldValue := parts[1]
+		structField := v.Field(i)
+		if !structField.CanSet() && structField.Kind() != reflect.String {
+			panic("Cannot set field: " + structFieldName)
+		}
+		v.Field(i).SetString(fieldValue)
+	}
+	return m
+}
+
+func (m Mode) DeepEqual(m2 *Mode) bool {
+	// reflect.DeepEqual() uses == to compare strings, this fits
+	return reflect.DeepEqual(m, m2)
+}

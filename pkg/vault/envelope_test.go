@@ -11,9 +11,10 @@ func Test_envelope(t *testing.T) {
 	ciphertext := "ciphertext"
 
 	envelope := buildEnvelope(salt, ciphertext)
-	assert.EqualValues(t, "SITU_VAULT_V1##AES256_GCM_PBKDF2_SHA256_ITER10K_SALT8_BASE32##salt##ciphertext", envelope)
+	assert.EqualValues(t, "SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##salt##ciphertext", envelope)
 
-	openedSalt, openedCipherText, _ := openEnvelope(envelope)
+	openedSalt, openedCipherText, err := openEnvelope(envelope)
+	assert.Nil(t, err)
 	assert.EqualValues(t, salt, openedSalt)
 	assert.EqualValues(t, ciphertext, openedCipherText)
 }

@@ -21,7 +21,7 @@ const (
 	Decrypt operation = "Decrypt"
 )
 
-var modes = []string{"AES256_GCM_PBKDF2_SHA256_ITER10K_SALT8_BASE32"}
+var modes = []string{"C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32"}
 
 type experience struct {
 	model map[operation]*model
