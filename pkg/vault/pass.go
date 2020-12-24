@@ -2,6 +2,7 @@ package vault
 
 import (
 	"crypto/sha256"
+
 	"golang.org/x/crypto/argon2"
 	"golang.org/x/crypto/pbkdf2"
 	"golang.org/x/crypto/scrypt"

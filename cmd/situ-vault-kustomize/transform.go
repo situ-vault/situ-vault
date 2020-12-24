@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"github.com/polarctos/situ-vault/pkg/vault"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
 	"os"
 	"regexp"
+
+	"gopkg.in/yaml.v3"
+
+	"github.com/polarctos/situ-vault/pkg/vault"
 )
 
 func transform(manifest *Manifest, wd string) {

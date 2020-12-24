@@ -3,12 +3,13 @@ package main
 import (
 	"bytes"
 	"encoding/base64"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"os"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_main(t *testing.T) {

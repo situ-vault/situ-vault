@@ -1,10 +1,12 @@
 package main
 
 import (
-	"fyne.io/fyne/test"
-	"github.com/polarctos/situ-vault/pkg/testdata"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"fyne.io/fyne/test"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/polarctos/situ-vault/pkg/testdata"
 )
 
 var predefined = testdata.PredefinedDecrypt()

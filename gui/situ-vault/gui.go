@@ -1,6 +1,8 @@
 package main
 
 import (
+	"image/color"
+
 	"fyne.io/fyne"
 	"fyne.io/fyne/canvas"
 	"fyne.io/fyne/container"
@@ -8,8 +10,8 @@ import (
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/theme"
 	"fyne.io/fyne/widget"
+
 	"github.com/polarctos/situ-vault/pkg/vault"
-	"image/color"
 )
 
 type operation string

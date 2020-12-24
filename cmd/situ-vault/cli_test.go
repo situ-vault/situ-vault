@@ -2,11 +2,13 @@ package main
 
 import (
 	"bytes"
-	"github.com/polarctos/situ-vault/pkg/testdata"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/polarctos/situ-vault/pkg/testdata"
 )
 
 var predefined = testdata.PredefinedDecrypt()

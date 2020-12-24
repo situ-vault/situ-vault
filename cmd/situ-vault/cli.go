@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	"github.com/polarctos/situ-vault/pkg/vault"
 	"log"
 	"os"
+
+	"github.com/polarctos/situ-vault/pkg/vault"
 )
 
 func main() {

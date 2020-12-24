@@ -4,9 +4,10 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"errors"
+	"log"
+
 	"golang.org/x/crypto/chacha20poly1305"
 	"golang.org/x/crypto/nacl/secretbox"
-	"log"
 )
 
 // AES-256-GCM (~ AES-CTR-GMAC)

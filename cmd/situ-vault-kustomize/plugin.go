@@ -1,10 +1,11 @@
 package main
 
 import (
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
 type Manifest struct {
