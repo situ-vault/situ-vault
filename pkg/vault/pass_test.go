@@ -30,6 +30,13 @@ func Test_deriveKeyPbkdf2(t *testing.T) {
 
 	assert.EqualValues(t, expectedKey.aesKey, key.aesKey)
 	assert.EqualValues(t, expectedKey.iv, key.iv)
+
+	key2 := deriveKey([]byte("wrong-password"), testSalt)
+	assert.NotEqual(t, key.aesKey, key2.aesKey, "different password has to result in a new key")
+
+	key3 := deriveKey(testPassword, testSalt)
+	assert.EqualValues(t, expectedKey.aesKey, key3.aesKey, "always derive the same key with the same inputs")
+	assert.EqualValues(t, expectedKey.iv, key3.iv, "always derive the same key with the same inputs")
 }
 
 func Test_deriveKeyArgon2(t *testing.T) {
@@ -40,6 +47,9 @@ func Test_deriveKeyArgon2(t *testing.T) {
 
 	assert.EqualValues(t, expectedKeyArgon2id.aesKey, key.aesKey)
 	assert.EqualValues(t, expectedKeyArgon2id.iv, key.iv)
+
+	key2 := deriveKey([]byte("wrong-password"), testSalt)
+	assert.NotEqual(t, key.aesKey, key2.aesKey, "different password has to result in a new key")
 }
 
 func Test_deriveKeyScrypt(t *testing.T) {
@@ -50,4 +60,7 @@ func Test_deriveKeyScrypt(t *testing.T) {
 
 	assert.EqualValues(t, expectedKeyScrypt.aesKey, key.aesKey)
 	assert.EqualValues(t, expectedKeyScrypt.iv, key.iv)
+
+	key2 := deriveKey([]byte("wrong-password"), testSalt)
+	assert.NotEqual(t, key.aesKey, key2.aesKey, "different password has to result in a new key")
 }

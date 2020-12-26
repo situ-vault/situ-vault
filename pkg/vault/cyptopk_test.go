@@ -1,8 +1,6 @@
 package vault
 
 import (
-	"encoding/hex"
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,10 +19,6 @@ func Test_NaclBox(t *testing.T) {
 	ciphertext, err := encryptNaclBox(data, boxKeysEncrypt)
 	assert.Nil(t, err)
 	assert.NotContains(t, ciphertext, data)
-
-	log.Print("eph. sender: " + ephemeralSenderKeys.debug())
-	log.Print("receiver:    " + recipientKeys.debug())
-	log.Print("nonce:       " + hex.EncodeToString(boxKeysEncrypt.Nonce[:]))
 
 	moreKeys := newBoxKeyPair()
 	boxKeysMore := BoxKeys{

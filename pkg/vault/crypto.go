@@ -64,8 +64,9 @@ func decryptSecretbox(data []byte, key *key) ([]byte, error) {
 	var err error
 	if !ok {
 		err = errors.New("Failed to decrypt secretbox.")
+		return nil, err
 	}
-	return decrypted[1:], err
+	return decrypted[1:], nil
 }
 
 // XChaCha20-Poly1305
@@ -78,7 +79,7 @@ func encryptXChaPo(data []byte, key *key) ([]byte, error) {
 	copy(nonce[:], key.iv)
 	var out = make([]byte, 1)
 	encrypted := aead.Seal(out, nonce[:], data, nil)
-	return encrypted[1:], err
+	return encrypted[1:], nil
 }
 
 func decryptXChaPo(data []byte, key *key) ([]byte, error) {
@@ -90,5 +91,8 @@ func decryptXChaPo(data []byte, key *key) ([]byte, error) {
 	copy(nonce[:], key.iv)
 	var out = make([]byte, 1)
 	decrypted, err := aead.Open(out, nonce[:], data, nil)
-	return decrypted[1:], err
+	if err != nil {
+		return nil, err
+	}
+	return decrypted[1:], nil
 }
