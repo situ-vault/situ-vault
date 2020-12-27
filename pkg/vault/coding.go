@@ -3,6 +3,8 @@ package vault
 import (
 	"encoding/base32"
 	"encoding/base64"
+
+	"github.com/nicksnyder/basen"
 )
 
 // Base32 decoding (only uppercase, no special characters)
@@ -26,5 +28,17 @@ func decodeBase64U(encoded string) ([]byte, error) {
 // Base64 encoding (URL safe variant)
 func encodeBase64U(data []byte) string {
 	encoded := base64.URLEncoding.EncodeToString(data)
+	return encoded
+}
+
+// Base62 decoding
+func decodeBase62(encoded string) ([]byte, error) {
+	decoded, err := basen.Base62Encoding.DecodeString(encoded)
+	return decoded, err
+}
+
+// Base62 encoding
+func encodeBase62(data []byte) string {
+	encoded := basen.Base62Encoding.EncodeToString(data)
 	return encoded
 }

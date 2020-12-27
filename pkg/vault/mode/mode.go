@@ -52,6 +52,7 @@ type Encoding string
 const (
 	NONE      Encoding = "NONE"      // No encoding, just bytes
 	BASE32    Encoding = "BASE32"    // Base32
+	BASE62    Encoding = "BASE62"    // Base62 (is Base64 without the 2 special characters)
 	BASE64    Encoding = "BASE64"    // Base64
 	BASE64URL Encoding = "BASE64URL" // Base64 (URL safe variant)
 )
