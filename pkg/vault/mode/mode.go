@@ -30,6 +30,8 @@ const (
 	AES256_GCM         Construct = "AES256_GCM"         // AEAD; Standard: Nonce: 12 byte, Tag: 16 byte (year 2000/2007)
 	NACL_SECRETBOX     Construct = "NACL_SECRETBOX"     // AE; XSalsa20-Poly1305; Standard: Nonce: 24 byte, Tag: 16 byte (year 2008)
 	XCHACHA20_POLY1305 Construct = "XCHACHA20_POLY1305" // AEAD; XChaCha20-Poly1305; Standard: Nonce: 24 byte, Tag: 16 byte (year 2008/2018)
+	NACL_BOX           Construct = "NACL_BOX"			// PKE; Curve25519-XSalsa20-Poly1305; Standard: PublicKey: 32 byte, SecretKey: 24 byte, Nonce: 24 byte, Tag: 16 byte
+	NACL_BOX_SECRETBOX Construct = "NACL_BOX_SECRETBOX" // AE & PKE; NACL_SECRETBOX for the actual data, and NACL_BOX for a data encryption key
 )
 
 type KeyDerivationFunction string

@@ -7,6 +7,17 @@ import (
 )
 
 func Test_NaclBox(t *testing.T) {
+	testPk(t, encryptNaclBox, decryptNaclBox)
+}
+
+func Test_NaclBoxSecretbox(t *testing.T) {
+	testPk(t, encryptNaclBoxSecretBox, decryptNaclBoxSecretbox)
+}
+
+func testPk(
+	t *testing.T,
+	enc func(data []byte, boxKeys BoxKeys) ([]byte, error),
+	dec func(data []byte, boxKeys BoxKeys) ([]byte, error)) {
 	data := []byte("test-data")
 	recipientKeys := newBoxKeyPair()
 	ephemeralSenderKeys := newBoxKeyPair()
@@ -16,7 +27,7 @@ func Test_NaclBox(t *testing.T) {
 		OtherPublicKey: recipientKeys.PublicKey,
 		Nonce:          newNonce(),
 	}
-	ciphertext, err := encryptNaclBox(data, boxKeysEncrypt)
+	ciphertext, err := enc(data, boxKeysEncrypt)
 	assert.Nil(t, err)
 	assert.NotContains(t, ciphertext, data)
 
@@ -26,7 +37,7 @@ func Test_NaclBox(t *testing.T) {
 		OtherPublicKey: ephemeralSenderKeys.PublicKey, // same sender
 		Nonce:          boxKeysEncrypt.Nonce,          // same nonce
 	}
-	_, err = decryptNaclBox(ciphertext, boxKeysMore)
+	_, err = dec(ciphertext, boxKeysMore)
 	assert.NotNil(t, err, "wrong keys should not decrypt")
 
 	boxKeysDecrypt := BoxKeys{
@@ -34,7 +45,7 @@ func Test_NaclBox(t *testing.T) {
 		OtherPublicKey: ephemeralSenderKeys.PublicKey, // same sender
 		Nonce:          boxKeysEncrypt.Nonce,          // same nonce
 	}
-	cleartext, err := decryptNaclBox(ciphertext, boxKeysDecrypt)
+	cleartext, err := dec(ciphertext, boxKeysDecrypt)
 	assert.Nil(t, err)
 	assert.Equal(t, cleartext, data)
 }
