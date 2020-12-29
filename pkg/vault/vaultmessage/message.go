@@ -25,6 +25,15 @@ type Message struct {
 	Ciphertext string
 }
 
+func New(mode vaultmode.Mode, salt string, ciphertext string) *Message {
+	return &Message{
+		Prefix:     VaultPrefix,
+		Mode:       mode,
+		Salt:       salt,
+		Ciphertext: ciphertext,
+	}
+}
+
 func (m Message) Text() string {
 	return VaultPrefix.Text() + separator + m.Mode.Text() + separator + m.Salt + separator + m.Ciphertext
 }
@@ -37,9 +46,14 @@ func NewMessage(data string) (*Message, error) {
 	if split[0] != VaultPrefix.Text() {
 		return nil, errors.New("unknown input prefix")
 	}
+	mode, err := vaultmode.NewMode(split[1])
+	if err != nil {
+		return nil, err
+	}
+
 	m := Message{
 		Prefix:     Prefix(split[0]),
-		Mode:       *vaultmode.NewMode(split[1]),
+		Mode:       *mode,
 		Salt:       split[2],
 		Ciphertext: split[3],
 	}

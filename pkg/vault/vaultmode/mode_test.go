@@ -23,11 +23,23 @@ func Test_ModeText2(t *testing.T) {
 }
 
 func Test_TextMode(t *testing.T) {
-	m := NewMode(defaultModeText)
+	m, _ := NewMode(defaultModeText)
 	assert.Equal(t, &defaultMode, m)
 }
 
 func Test_TextMode2(t *testing.T) {
-	m := NewMode(secretboxModeText)
+	m, _ := NewMode(secretboxModeText)
 	assert.Equal(t, &secretboxMode, m)
+}
+
+func Test_WrongConstruct(t *testing.T) {
+	_, err := NewMode("C:AES256#KDF:x#SALT:y#ENC:z")
+	assert.NotNil(t, err)
+}
+
+func Test_ValidateField(t *testing.T) {
+	err := validateModeField("ENC", "BASE32")
+	assert.Nil(t, err)
+	err = validateModeField("ENC", "BASE1")
+	assert.NotNil(t, err, "invalid value should be rejected")
 }

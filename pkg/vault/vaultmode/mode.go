@@ -1,6 +1,7 @@
 package vaultmode
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -39,7 +40,7 @@ func (m Mode) Text() string {
 	return text
 }
 
-func NewMode(text string) *Mode {
+func NewMode(text string) (*Mode, error) {
 	split := strings.Split(text, fieldSeparator)
 	m := &Mode{
 		Construct: "",
@@ -49,25 +50,51 @@ func NewMode(text string) *Mode {
 	}
 	v := reflect.Indirect(reflect.ValueOf(m))
 	if len(split) != v.NumField() {
-		panic("Incorrect vaultmode text: " + text)
+		return nil, errors.New("Incorrect vaultmode text: " + text)
 	}
 	for i := 0; i < v.NumField(); i++ {
 		code, found := v.Type().Field(i).Tag.Lookup(code)
 		structFieldName := v.Type().Field(i).Name
 		if !found {
-			panic("Untagged vaultmode field: " + structFieldName)
+			return nil, errors.New("Untagged vaultmode field: " + structFieldName)
 		}
 		parts := strings.Split(split[i], codeSeparator)
 		fieldCode := parts[0]
 		if code != fieldCode {
-			panic("Incorrect vaultmode order: " + text + " " + fieldCode)
+			return nil, errors.New("Incorrect vaultmode order: " + text + " " + fieldCode)
 		}
 		fieldValue := parts[1]
 		structField := v.Field(i)
 		if !structField.CanSet() && structField.Kind() != reflect.String {
-			panic("Cannot set field: " + structFieldName)
+			return nil, errors.New("Cannot set field: " + structFieldName)
+		}
+		err := validateModeField(fieldCode, fieldValue)
+		if err != nil {
+			return nil, err
 		}
 		v.Field(i).SetString(fieldValue)
 	}
-	return m
+	return m, nil
+}
+
+func validateModeField(code string, value string) (err error) {
+	switch code {
+	case "C":
+		_, err = ParseConstruct(value)
+	case "KDF":
+		_, err = ParseKeyDerivationFunction(value)
+	case "SALT":
+		_, err = ParseSalt(value)
+	case "ENC":
+		_, err = ParseEncoding(value)
+	}
+	return err
+}
+
+func allValues(v reflect.Value) (e []string) {
+	for i := 0; i < v.NumField(); i++ {
+		value := v.Field(i)
+		e = append(e, value.String())
+	}
+	return e
 }

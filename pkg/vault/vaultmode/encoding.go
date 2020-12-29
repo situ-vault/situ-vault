@@ -1,5 +1,10 @@
 package vaultmode
 
+import (
+	"errors"
+	"reflect"
+)
+
 type Encoding string
 
 const (
@@ -18,13 +23,19 @@ type encodings struct {
 	Base64url Encoding
 }
 
-// intentionally returns private struct
-func Encodings() encodings {
-	return encodings{
-		None:      None,
-		Base32:    Base32,
-		Base62:    Base62,
-		Base64:    Base64,
-		Base64url: Base64url,
+var Encodings = encodings{
+	None:      None,
+	Base32:    Base32,
+	Base62:    Base62,
+	Base64:    Base64,
+	Base64url: Base64url,
+}
+
+func ParseEncoding(s string) (Encoding, error) {
+	for _, value := range allValues(reflect.ValueOf(Encodings)) {
+		if s == value {
+			return Encoding(s), nil
+		}
 	}
+	return "", errors.New("Invalid value: " + s)
 }

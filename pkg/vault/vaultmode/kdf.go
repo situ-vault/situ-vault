@@ -1,5 +1,10 @@
 package vaultmode
 
+import (
+	"errors"
+	"reflect"
+)
+
 type KeyDerivationFunction string
 
 const (
@@ -14,11 +19,17 @@ type keyDerivationFunctions struct {
 	Scrypt_n32768_r8_p1   KeyDerivationFunction
 }
 
-// intentionally returns private struct
-func KeyDerivationFunctions() keyDerivationFunctions {
-	return keyDerivationFunctions{
-		Pbkdf2_sha256_i10k:    Pbkdf2_sha256_i10k,
-		Argon2id_t1_m65536_c4: Argon2id_t1_m65536_c4,
-		Scrypt_n32768_r8_p1:   Scrypt_n32768_r8_p1,
+var KeyDerivationFunctions = keyDerivationFunctions{
+	Pbkdf2_sha256_i10k:    Pbkdf2_sha256_i10k,
+	Argon2id_t1_m65536_c4: Argon2id_t1_m65536_c4,
+	Scrypt_n32768_r8_p1:   Scrypt_n32768_r8_p1,
+}
+
+func ParseKeyDerivationFunction(s string) (KeyDerivationFunction, error) {
+	for _, value := range allValues(reflect.ValueOf(KeyDerivationFunctions)) {
+		if s == value {
+			return KeyDerivationFunction(s), nil
+		}
 	}
+	return "", errors.New("Invalid value: " + s)
 }
