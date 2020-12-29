@@ -44,6 +44,7 @@ func newExperience() *experience {
 }
 
 type model struct {
+	op       operation
 	password string
 	input    string
 	mode     string
@@ -72,6 +73,9 @@ func newUi(model *model, action func(), refresh func(), getClipboard func() fyne
 	u.input.Wrapping = fyne.TextWrapBreak
 	u.modes = widget.NewRadioGroup(modes, func(string) {})
 	u.modes.SetSelected(modes[0])
+	if model.op == Decrypt {
+		u.modes.Disable()
+	}
 
 	// there is no data binding in fyne yet, thus manually:
 	updateModelFromUi := func() {
@@ -95,6 +99,7 @@ func newUi(model *model, action func(), refresh func(), getClipboard func() fyne
 	u.clear = func() {
 		model.password = ""
 		model.input = ""
+		model.mode = modes[0]
 		model.output = ""
 		updateUiFromModel()
 	}
@@ -152,7 +157,7 @@ func newDecryptUi(model *model, refresh func(), showError func(error), getClipbo
 		if err != nil {
 			showError(err)
 		} else {
-			var found bool = false
+			var found = false
 			for _, element := range modes {
 				if modeText == element {
 					model.mode = element
@@ -168,8 +173,9 @@ func newDecryptUi(model *model, refresh func(), showError func(error), getClipbo
 	return newUi(model, action, refresh, getClipboard)
 }
 
-func newModel() *model {
+func newModel(op operation) *model {
 	return &model{
+		op:       op,
 		password: "",
 		input:    "",
 		mode:     modes[0],
@@ -191,14 +197,14 @@ func (exp *experience) loadUi(application fyne.App) {
 	}
 
 	var encryptTab *fyne.Container
-	encryptModel := newModel()
+	encryptModel := newModel(Encrypt)
 	encryptUi := newEncryptUi(encryptModel, func() { encryptTab.Refresh() }, showError, getClipboard)
 	encryptTab = uiTabDesign(encryptUi, Encrypt)
 	exp.model[Encrypt] = encryptModel
 	exp.ui[Encrypt] = encryptUi
 
 	var decryptTab *fyne.Container
-	decryptModel := newModel()
+	decryptModel := newModel(Decrypt)
 	decryptUi := newDecryptUi(decryptModel, func() { decryptTab.Refresh() }, showError, getClipboard)
 	decryptTab = uiTabDesign(decryptUi, Decrypt)
 	exp.model[Decrypt] = decryptModel
