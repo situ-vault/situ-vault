@@ -22,41 +22,6 @@ type Mode struct {
 	Encoding  Encoding              `code:"ENC"`
 }
 
-type Construct string
-
-const (
-	AES256_GCM         Construct = "AES256_GCM"         // AEAD; Standard: Nonce: 12 byte, Tag: 16 byte (year 2000/2007)
-	NACL_SECRETBOX     Construct = "NACL_SECRETBOX"     // AE; XSalsa20-Poly1305; Standard: Nonce: 24 byte, Tag: 16 byte (year 2008)
-	XCHACHA20_POLY1305 Construct = "XCHACHA20_POLY1305" // AEAD; XChaCha20-Poly1305; Standard: Nonce: 24 byte, Tag: 16 byte (year 2008/2018)
-	NACL_BOX           Construct = "NACL_BOX"           // PKE; Curve25519-XSalsa20-Poly1305; Standard: PublicKey: 32 byte, SecretKey: 24 byte, Nonce: 24 byte, Tag: 16 byte
-	NACL_BOX_SECRETBOX Construct = "NACL_BOX_SECRETBOX" // AE & PKE; NACL_SECRETBOX for the actual data, and NACL_BOX for a data encryption key
-)
-
-type KeyDerivationFunction string
-
-const (
-	PBKDF2_SHA256_I10K    KeyDerivationFunction = "PBKDF2_SHA256_I10K"    // 10000 iterations, OpenSSL default (year 2000)
-	ARGON2ID_T1_M65536_C4 KeyDerivationFunction = "ARGON2ID_T1_M65536_C4" // parameters as of RFC (year 2015)
-	SCRYPT_N32768_R8_P1   KeyDerivationFunction = "SCRYPT_N32768_R8_P1"   // parameters as RFC with bigger N (year 2009)
-)
-
-type Salt string
-
-const (
-	R8B  Salt = "R8B"  // Random 8 bytes
-	R16B Salt = "R16B" // Random 16 bytes
-)
-
-type Encoding string
-
-const (
-	NONE      Encoding = "NONE"      // No encoding, just bytes
-	BASE32    Encoding = "BASE32"    // Base32
-	BASE62    Encoding = "BASE62"    // Base62 (is Base64 without the 2 special characters)
-	BASE64    Encoding = "BASE64"    // Base64
-	BASE64URL Encoding = "BASE64URL" // Base64 (URL safe variant)
-)
-
 func (m Mode) Text() string {
 	v := reflect.ValueOf(m)
 	var text string
