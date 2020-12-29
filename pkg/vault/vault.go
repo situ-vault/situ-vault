@@ -24,17 +24,9 @@ func Encrypt(cleartext string, password string, modeText string) (messageText st
 		return "", errors.New("selected salt variant not implemented")
 	}
 
-	pw := []byte(password)
-	var key *internal.Key
-	switch mm.Kdf {
-	case vaultmode.KeyDerivationFunctions.Pbkdf2_sha256_i10k:
-		key = internal.DeriveKey(pw, salt)
-	case vaultmode.KeyDerivationFunctions.Argon2id_t1_m65536_c4:
-		key = internal.DeriveKeyArgon2id(pw, salt)
-	case vaultmode.KeyDerivationFunctions.Scrypt_n32768_r8_p1:
-		key = internal.DeriveKeyScrypt(pw, salt)
-	default:
-		return "", errors.New("selected key derivation function not implemented")
+	key, err := deriveKey(mm.Kdf, []byte(password), salt)
+	if err != nil {
+		return "", err
 	}
 
 	data := []byte(cleartext)
@@ -102,17 +94,9 @@ func Decrypt(messageText string, password string) (cleartext string, modeText st
 		return "", "", err
 	}
 
-	pw := []byte(password)
-	var key *internal.Key
-	switch mm.Kdf {
-	case vaultmode.KeyDerivationFunctions.Pbkdf2_sha256_i10k:
-		key = internal.DeriveKey(pw, decodedSalt)
-	case vaultmode.KeyDerivationFunctions.Argon2id_t1_m65536_c4:
-		key = internal.DeriveKeyArgon2id(pw, decodedSalt)
-	case vaultmode.KeyDerivationFunctions.Scrypt_n32768_r8_p1:
-		key = internal.DeriveKeyScrypt(pw, decodedSalt)
-	default:
-		return "", "", errors.New("selected key derivation function not implemented")
+	key, err := deriveKey(mm.Kdf, []byte(password), decodedSalt)
+	if err != nil {
+		return "", "", err
 	}
 
 	var decrypted []byte
@@ -128,4 +112,19 @@ func Decrypt(messageText string, password string) (cleartext string, modeText st
 	}
 
 	return string(decrypted), mm.Text(), err
+}
+
+func deriveKey(kdf vaultmode.KeyDerivationFunction, pw []byte, salt []byte) (*internal.Key, error) {
+	var key *internal.Key
+	switch kdf {
+	case vaultmode.KeyDerivationFunctions.Pbkdf2_sha256_i10k:
+		key = internal.DeriveKey(pw, salt)
+	case vaultmode.KeyDerivationFunctions.Argon2id_t1_m65536_c4:
+		key = internal.DeriveKeyArgon2id(pw, salt)
+	case vaultmode.KeyDerivationFunctions.Scrypt_n32768_r8_p1:
+		key = internal.DeriveKeyScrypt(pw, salt)
+	default:
+		return nil, errors.New("selected key derivation function not implemented")
+	}
+	return key, nil
 }
