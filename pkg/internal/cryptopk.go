@@ -1,4 +1,4 @@
-package vault
+package internal
 
 import (
 	"crypto/rand"
@@ -75,11 +75,11 @@ func decryptNaclBox(data []byte, boxKeys BoxKeys) ([]byte, error) {
 func encryptNaclBoxSecretBox(data []byte, boxKeys BoxKeys) ([]byte, error) {
 	dek := newSecretboxKey()
 	iv := newNonce()
-	key := &key{
-		aesKey: dek[:],
-		iv:     iv[:],
+	key := &Key{
+		key: dek[:],
+		iv:  iv[:],
 	}
-	encryptedData, err := encryptSecretbox(data, key)
+	encryptedData, err := EncryptSecretbox(data, key)
 	if err != nil {
 		return nil, err
 	}
@@ -103,10 +103,10 @@ func decryptNaclBoxSecretbox(data []byte, boxKeys BoxKeys) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	key := &key{
-		aesKey: decryptedDek,
-		iv:     iv,
+	key := &Key{
+		key: decryptedDek,
+		iv:  iv,
 	}
-	decryptedData, err := decryptSecretbox(encryptedData, key)
+	decryptedData, err := DecryptSecretbox(encryptedData, key)
 	return decryptedData, err
 }

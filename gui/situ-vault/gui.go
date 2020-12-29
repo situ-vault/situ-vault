@@ -13,7 +13,7 @@ import (
 	"fyne.io/fyne/widget"
 
 	"github.com/polarctos/situ-vault/pkg/vault"
-	"github.com/polarctos/situ-vault/pkg/vault/mode"
+	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
 )
 
 type operation string
@@ -24,10 +24,10 @@ const (
 )
 
 var modes = []string{
-	mode.Defaults().Conservative.Text(),
-	mode.Defaults().Modern.Text(),
-	mode.Defaults().Secretbox.Text(),
-	mode.Defaults().XChaCha.Text(),
+	vaultmode.Defaults().Conservative.Text(),
+	vaultmode.Defaults().Modern.Text(),
+	vaultmode.Defaults().Secretbox.Text(),
+	vaultmode.Defaults().XChaCha.Text(),
 }
 
 type experience struct {
@@ -165,7 +165,7 @@ func newDecryptUi(model *model, refresh func(), showError func(error), getClipbo
 				}
 			}
 			if !found {
-				showError(errors.New("mode not supported in the GUI"))
+				showError(errors.New("vaultmode not supported in the GUI"))
 			}
 			model.output = result
 		}
@@ -270,7 +270,7 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 		CancelText: "Clear Clipboard",
 	}
 
-	// mode is either before or after the separator:
+	// vaultmode is either before or after the separator:
 	mode := widget.NewFormItem("Mode:", ui.modes)
 	switch op {
 	case Encrypt:

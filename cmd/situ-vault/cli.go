@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/polarctos/situ-vault/pkg/vault"
-	"github.com/polarctos/situ-vault/pkg/vault/mode"
+	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
 )
 
 func main() {
@@ -16,13 +16,13 @@ func main() {
 	log.Println("Result: " + result)
 }
 
-var defaultModeText string = mode.Defaults().Conservative.Text()
+var defaultModeText string = vaultmode.Defaults().Conservative.Text()
 
 func handleCommand(args []string) string {
 	encryptCmd := flag.NewFlagSet("encrypt", flag.ExitOnError)
 	encryptPassword := encryptCmd.String("password", "", "the password")
 	encryptCleartext := encryptCmd.String("cleartext", "", "the text to encrypt")
-	encryptModeText := encryptCmd.String("mode", defaultModeText, "the mode")
+	encryptModeText := encryptCmd.String("vaultmode", defaultModeText, "the vaultmode")
 
 	decryptCmd := flag.NewFlagSet("decrypt", flag.ExitOnError)
 	decryptPassword := decryptCmd.String("password", "", "the password")

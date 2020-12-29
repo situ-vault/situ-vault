@@ -1,10 +1,11 @@
-package vault
+package vaultmessage
 
 import (
-	"github.com/polarctos/situ-vault/pkg/vault/mode"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
 )
 
 func Test_message(t *testing.T) {
@@ -12,8 +13,8 @@ func Test_message(t *testing.T) {
 	ciphertext := "ciphertext"
 
 	m := Message{
-		Prefix:     prefix,
-		Mode:       mode.Defaults().Conservative,
+		Prefix:     VaultPrefix,
+		Mode:       vaultmode.Defaults().Conservative,
 		Salt:       salt,
 		Ciphertext: ciphertext,
 	}
@@ -23,8 +24,8 @@ func Test_message(t *testing.T) {
 
 	openedMessage, err := NewMessage(messageText)
 	assert.Nil(t, err)
-	assert.EqualValues(t, prefix, openedMessage.Prefix)
-	assert.EqualValues(t, mode.Defaults().Conservative, openedMessage.Mode)
+	assert.EqualValues(t, VaultPrefix, openedMessage.Prefix)
+	assert.EqualValues(t, vaultmode.Defaults().Conservative, openedMessage.Mode)
 	assert.EqualValues(t, salt, openedMessage.Salt)
 	assert.EqualValues(t, ciphertext, openedMessage.Ciphertext)
 }

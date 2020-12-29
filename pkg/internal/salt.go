@@ -1,4 +1,4 @@
-package vault
+package internal
 
 import (
 	"crypto/rand"
@@ -10,7 +10,7 @@ const (
 	SaltLength16 = 16
 )
 
-func newSalt(length int) []byte {
+func NewSalt(length int) []byte {
 	salt, err := randomBytes(length)
 	if err != nil {
 		log.Fatal(err)

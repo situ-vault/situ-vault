@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"github.com/polarctos/situ-vault/pkg/vault/mode"
 	"log"
 	"os"
 	"testing"
@@ -10,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/polarctos/situ-vault/pkg/testdata"
+	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
 )
 
 var predefined = testdata.PredefinedDecrypt()
@@ -50,9 +50,9 @@ func Test_handleCommand_decrypt_v1(t *testing.T) {
 func Test_handleCommand_mode(t *testing.T) {
 	password := testdata.RandomPassword(16)
 	cleartext := testdata.RandomDataBase64(500)
-	modeText := mode.Defaults().Modern.Text()
+	modeText := vaultmode.Defaults().Modern.Text()
 
-	encryptArgs := []string{"situ-vault", "encrypt", "-password=" + password, "-cleartext=" + cleartext, "-mode=" + modeText}
+	encryptArgs := []string{"situ-vault", "encrypt", "-password=" + password, "-cleartext=" + cleartext, "-vaultmode=" + modeText}
 	resultEncrypted := handleCommand(encryptArgs)
 	assert.Contains(t, resultEncrypted, "ARGON2ID")
 	assert.Contains(t, resultEncrypted, "BASE62")

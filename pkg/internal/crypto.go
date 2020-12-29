@@ -1,4 +1,4 @@
-package vault
+package internal
 
 import (
 	"crypto/aes"
@@ -11,8 +11,8 @@ import (
 )
 
 // AES-256-GCM (~ AES-CTR-GMAC)
-func encrypt(data []byte, key *key) ([]byte, error) {
-	block, err := aes.NewCipher(key.aesKey)
+func EncryptAes(data []byte, key *Key) ([]byte, error) {
+	block, err := aes.NewCipher(key.key)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -26,8 +26,8 @@ func encrypt(data []byte, key *key) ([]byte, error) {
 	return encrypted, err
 }
 
-func decrypt(data []byte, key *key) ([]byte, error) {
-	block, err := aes.NewCipher(key.aesKey)
+func DecryptAes(data []byte, key *Key) ([]byte, error) {
+	block, err := aes.NewCipher(key.key)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,9 +42,9 @@ func decrypt(data []byte, key *key) ([]byte, error) {
 }
 
 // XSalsa20-Poly1305
-func encryptSecretbox(data []byte, key *key) ([]byte, error) {
+func EncryptSecretbox(data []byte, key *Key) ([]byte, error) {
 	var secretKey [32]byte
-	copy(secretKey[:], key.aesKey)
+	copy(secretKey[:], key.key)
 	var nonce [24]byte
 	copy(nonce[:], key.iv)
 	// often the result is appended to the nonce, here the nonce comes from the kdf instead
@@ -54,9 +54,9 @@ func encryptSecretbox(data []byte, key *key) ([]byte, error) {
 	return encrypted[1:], nil
 }
 
-func decryptSecretbox(data []byte, key *key) ([]byte, error) {
+func DecryptSecretbox(data []byte, key *Key) ([]byte, error) {
 	var secretKey [32]byte
-	copy(secretKey[:], key.aesKey)
+	copy(secretKey[:], key.key)
 	var nonce [24]byte
 	copy(nonce[:], key.iv)
 	var out = make([]byte, 1)
@@ -70,8 +70,8 @@ func decryptSecretbox(data []byte, key *key) ([]byte, error) {
 }
 
 // XChaCha20-Poly1305
-func encryptXChaPo(data []byte, key *key) ([]byte, error) {
-	aead, err := chacha20poly1305.NewX(key.aesKey)
+func EncryptXChaPo(data []byte, key *Key) ([]byte, error) {
+	aead, err := chacha20poly1305.NewX(key.key)
 	if err != nil {
 		panic(err)
 	}
@@ -82,8 +82,8 @@ func encryptXChaPo(data []byte, key *key) ([]byte, error) {
 	return encrypted[1:], nil
 }
 
-func decryptXChaPo(data []byte, key *key) ([]byte, error) {
-	aead, err := chacha20poly1305.NewX(key.aesKey)
+func DecryptXChaPo(data []byte, key *Key) ([]byte, error) {
+	aead, err := chacha20poly1305.NewX(key.key)
 	if err != nil {
 		panic(err)
 	}

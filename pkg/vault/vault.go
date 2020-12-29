@@ -3,31 +3,33 @@ package vault
 import (
 	"errors"
 
-	"github.com/polarctos/situ-vault/pkg/vault/mode"
+	"github.com/polarctos/situ-vault/pkg/internal"
+	"github.com/polarctos/situ-vault/pkg/vault/vaultmessage"
+	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
 )
 
 func Encrypt(cleartext string, password string, modeText string) (messageText string, err error) {
-	mm := mode.NewMode(modeText)
+	mm := vaultmode.NewMode(modeText)
 
 	var salt []byte
 	switch mm.Salt {
-	case mode.R8B:
-		salt = newSalt(SaltLength8)
-	case mode.R16B:
-		salt = newSalt(SaltLength16)
+	case vaultmode.R8B:
+		salt = internal.NewSalt(internal.SaltLength8)
+	case vaultmode.R16B:
+		salt = internal.NewSalt(internal.SaltLength16)
 	default:
 		return "", errors.New("selected salt variant not implemented")
 	}
 
 	pw := []byte(password)
-	var key *key
+	var key *internal.Key
 	switch mm.Kdf {
-	case mode.PBKDF2_SHA256_I10K:
-		key = deriveKey(pw, salt)
-	case mode.ARGON2ID_T1_M65536_C4:
-		key = deriveKeyArgon2id(pw, salt)
-	case mode.SCRYPT_N32768_R8_P1:
-		key = deriveKeyScrypt(pw, salt)
+	case vaultmode.PBKDF2_SHA256_I10K:
+		key = internal.DeriveKey(pw, salt)
+	case vaultmode.ARGON2ID_T1_M65536_C4:
+		key = internal.DeriveKeyArgon2id(pw, salt)
+	case vaultmode.SCRYPT_N32768_R8_P1:
+		key = internal.DeriveKeyScrypt(pw, salt)
 	default:
 		return "", errors.New("selected key derivation function not implemented")
 	}
@@ -35,12 +37,12 @@ func Encrypt(cleartext string, password string, modeText string) (messageText st
 	data := []byte(cleartext)
 	var encrypted []byte
 	switch mm.Construct {
-	case mode.AES256_GCM:
-		encrypted, err = encrypt(data, key)
-	case mode.NACL_SECRETBOX:
-		encrypted, err = encryptSecretbox(data, key)
-	case mode.XCHACHA20_POLY1305:
-		encrypted, err = encryptXChaPo(data, key)
+	case vaultmode.AES256_GCM:
+		encrypted, err = internal.EncryptAes(data, key)
+	case vaultmode.NACL_SECRETBOX:
+		encrypted, err = internal.EncryptSecretbox(data, key)
+	case vaultmode.XCHACHA20_POLY1305:
+		encrypted, err = internal.EncryptXChaPo(data, key)
 	default:
 		return "", errors.New("selected construct not implemented")
 	}
@@ -48,24 +50,24 @@ func Encrypt(cleartext string, password string, modeText string) (messageText st
 	var encodedSalt string
 	var encodedCiphertext string
 	switch mm.Encoding {
-	case mode.BASE32:
-		encodedSalt = encode(salt)
-		encodedCiphertext = encode(encrypted)
-	case mode.BASE62:
-		encodedSalt = encodeBase62(salt)
-		encodedCiphertext = encodeBase62(encrypted)
-	case mode.BASE64:
-		encodedSalt = encodeBase64(salt)
-		encodedCiphertext = encodeBase64(encrypted)
-	case mode.BASE64URL:
-		encodedSalt = encodeBase64U(salt)
-		encodedCiphertext = encodeBase64U(encrypted)
+	case vaultmode.BASE32:
+		encodedSalt = internal.EncodeBase32(salt)
+		encodedCiphertext = internal.EncodeBase32(encrypted)
+	case vaultmode.BASE62:
+		encodedSalt = internal.EncodeBase62(salt)
+		encodedCiphertext = internal.EncodeBase62(encrypted)
+	case vaultmode.BASE64:
+		encodedSalt = internal.EncodeBase64(salt)
+		encodedCiphertext = internal.EncodeBase64(encrypted)
+	case vaultmode.BASE64URL:
+		encodedSalt = internal.EncodeBase64Url(salt)
+		encodedCiphertext = internal.EncodeBase64Url(encrypted)
 	default:
 		return "", errors.New("selected encoding not implemented")
 	}
 
-	m := Message{
-		Prefix:     prefix,
+	m := vaultmessage.Message{
+		Prefix:     vaultmessage.VaultPrefix,
 		Mode:       *mm,
 		Salt:       encodedSalt,
 		Ciphertext: encodedCiphertext,
@@ -75,8 +77,8 @@ func Encrypt(cleartext string, password string, modeText string) (messageText st
 }
 
 func Decrypt(messageText string, password string) (cleartext string, modeText string, err error) {
-	var message *Message
-	message, err = NewMessage(messageText)
+	var message *vaultmessage.Message
+	message, err = vaultmessage.NewMessage(messageText)
 	if err != nil {
 		return "", "", err
 	}
@@ -85,44 +87,44 @@ func Decrypt(messageText string, password string) (cleartext string, modeText st
 	var decodedSalt []byte
 	var decodedCiphertext []byte
 	switch mm.Encoding {
-	case mode.BASE32:
-		decodedSalt, err = decode(message.Salt)
-		decodedCiphertext, err = decode(message.Ciphertext)
-	case mode.BASE62:
-		decodedSalt, err = decodeBase62(message.Salt)
-		decodedCiphertext, err = decodeBase62(message.Ciphertext)
-	case mode.BASE64:
-		decodedSalt, err = decodeBase64(message.Salt)
-		decodedCiphertext, err = decodeBase64(message.Ciphertext)
-	case mode.BASE64URL:
-		decodedSalt, err = decodeBase64U(message.Salt)
-		decodedCiphertext, err = decodeBase64U(message.Ciphertext)
+	case vaultmode.BASE32:
+		decodedSalt, err = internal.DecodeBase32(message.Salt)
+		decodedCiphertext, err = internal.DecodeBase32(message.Ciphertext)
+	case vaultmode.BASE62:
+		decodedSalt, err = internal.DecodeBase62(message.Salt)
+		decodedCiphertext, err = internal.DecodeBase62(message.Ciphertext)
+	case vaultmode.BASE64:
+		decodedSalt, err = internal.DecodeBase64(message.Salt)
+		decodedCiphertext, err = internal.DecodeBase64(message.Ciphertext)
+	case vaultmode.BASE64URL:
+		decodedSalt, err = internal.DecodeBase64Url(message.Salt)
+		decodedCiphertext, err = internal.DecodeBase64Url(message.Ciphertext)
 	}
 	if err != nil {
 		return "", "", err
 	}
 
 	pw := []byte(password)
-	var key *key
+	var key *internal.Key
 	switch mm.Kdf {
-	case mode.PBKDF2_SHA256_I10K:
-		key = deriveKey(pw, decodedSalt)
-	case mode.ARGON2ID_T1_M65536_C4:
-		key = deriveKeyArgon2id(pw, decodedSalt)
-	case mode.SCRYPT_N32768_R8_P1:
-		key = deriveKeyScrypt(pw, decodedSalt)
+	case vaultmode.PBKDF2_SHA256_I10K:
+		key = internal.DeriveKey(pw, decodedSalt)
+	case vaultmode.ARGON2ID_T1_M65536_C4:
+		key = internal.DeriveKeyArgon2id(pw, decodedSalt)
+	case vaultmode.SCRYPT_N32768_R8_P1:
+		key = internal.DeriveKeyScrypt(pw, decodedSalt)
 	default:
 		return "", "", errors.New("selected key derivation function not implemented")
 	}
 
 	var decrypted []byte
 	switch mm.Construct {
-	case mode.AES256_GCM:
-		decrypted, err = decrypt(decodedCiphertext, key)
-	case mode.NACL_SECRETBOX:
-		decrypted, err = decryptSecretbox(decodedCiphertext, key)
-	case mode.XCHACHA20_POLY1305:
-		decrypted, err = decryptXChaPo(decodedCiphertext, key)
+	case vaultmode.AES256_GCM:
+		decrypted, err = internal.DecryptAes(decodedCiphertext, key)
+	case vaultmode.NACL_SECRETBOX:
+		decrypted, err = internal.DecryptSecretbox(decodedCiphertext, key)
+	case vaultmode.XCHACHA20_POLY1305:
+		decrypted, err = internal.DecryptXChaPo(decodedCiphertext, key)
 	default:
 		return "", "", errors.New("selected construct not implemented")
 	}

@@ -1,17 +1,18 @@
 package vault
 
 import (
-	"github.com/polarctos/situ-vault/pkg/testdata"
-	"github.com/polarctos/situ-vault/pkg/vault/mode"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/polarctos/situ-vault/pkg/testdata"
+	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
 )
 
 func Test_roundTrip(t *testing.T) {
 	password := string(testdata.RandomPassword(16))
 	cleartext := string(testdata.RandomDataBase64(500))
-	modeText := mode.Defaults().Conservative.Text()
+	modeText := vaultmode.Defaults().Conservative.Text()
 
 	resultEncrypted, err := Encrypt(cleartext, password, modeText)
 	assert.Nil(t, err)

@@ -1,4 +1,4 @@
-package mode
+package vaultmode
 
 type defaults struct {
 	Conservative Mode

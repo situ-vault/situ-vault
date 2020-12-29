@@ -1,4 +1,4 @@
-package mode
+package vaultmode
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// examples: (the mode is only the part following after "SITU_VAULT_V1##" until the next "##")
+// examples: (the vaultmode is only the part following after "SITU_VAULT_V1##" until the next "##")
 // "SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##TNSIVLVV6EOGI===##GRDENILPW24R4YDA2I6MKT6JPLG5GM2HWC5S2PR7"
 
 const (
@@ -63,7 +63,7 @@ func (m Mode) Text() string {
 	for i := 0; i < v.NumField(); i++ {
 		code, found := v.Type().Field(i).Tag.Lookup(code)
 		if !found {
-			panic("Untagged mode field: " + v.Type().Field(i).Name)
+			panic("Untagged vaultmode field: " + v.Type().Field(i).Name)
 		}
 		fieldValue := fmt.Sprint(v.Field(i).Interface())
 		text += code + codeSeparator + fieldValue
@@ -84,18 +84,18 @@ func NewMode(text string) *Mode {
 	}
 	v := reflect.Indirect(reflect.ValueOf(m))
 	if len(split) != v.NumField() {
-		panic("Incorrect mode text: " + text)
+		panic("Incorrect vaultmode text: " + text)
 	}
 	for i := 0; i < v.NumField(); i++ {
 		code, found := v.Type().Field(i).Tag.Lookup(code)
 		structFieldName := v.Type().Field(i).Name
 		if !found {
-			panic("Untagged mode field: " + structFieldName)
+			panic("Untagged vaultmode field: " + structFieldName)
 		}
 		parts := strings.Split(split[i], codeSeparator)
 		fieldCode := parts[0]
 		if code != fieldCode {
-			panic("Incorrect mode order: " + text + " " + fieldCode)
+			panic("Incorrect vaultmode order: " + text + " " + fieldCode)
 		}
 		fieldValue := parts[1]
 		structField := v.Field(i)

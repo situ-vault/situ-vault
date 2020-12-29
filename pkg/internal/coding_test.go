@@ -1,15 +1,16 @@
-package vault
+package internal
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_base32(t *testing.T) {
 	data := []byte("test-data")
-	e := encode(data)
+	e := EncodeBase32(data)
 	assert.NotEqual(t, e, data)
-	d, err := decode(e)
+	d, err := DecodeBase32(e)
 	assert.Nil(t, err)
 	assert.Equal(t, d, data)
 	assert.Equal(t, "ORSXG5BNMRQXIYI=", e)
@@ -17,19 +18,19 @@ func Test_base32(t *testing.T) {
 
 func Test_base64(t *testing.T) {
 	data := []byte("test-data")
-	e := encodeBase64(data)
+	e := EncodeBase64(data)
 	assert.NotEqual(t, e, data)
-	d, err := decodeBase64(e)
+	d, err := DecodeBase64(e)
 	assert.Nil(t, err)
 	assert.Equal(t, d, data)
 	assert.Equal(t, "dGVzdC1kYXRh", e)
 }
 
-func Test_base64U(t *testing.T) {
+func Test_base64Url(t *testing.T) {
 	data := []byte("test-data")
-	e := encodeBase64U(data)
+	e := EncodeBase64Url(data)
 	assert.NotEqual(t, e, data)
-	d, err := decodeBase64U(e)
+	d, err := DecodeBase64Url(e)
 	assert.Nil(t, err)
 	assert.Equal(t, d, data)
 	assert.Equal(t, "dGVzdC1kYXRh", e)
@@ -37,9 +38,9 @@ func Test_base64U(t *testing.T) {
 
 func Test_base62(t *testing.T) {
 	data := []byte("test-data")
-	e := encodeBase62(data)
+	e := EncodeBase62(data)
 	assert.NotEqual(t, e, data)
-	d, err := decodeBase62(e)
+	d, err := DecodeBase62(e)
 	assert.Nil(t, err)
 	assert.Equal(t, d, data)
 	assert.Equal(t, "fGF8D3pR6tsH", e)
