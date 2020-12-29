@@ -19,6 +19,18 @@ func encode(data []byte) string {
 	return encoded
 }
 
+// Base64 decoding
+func decodeBase64(encoded string) ([]byte, error) {
+	decoded, err := base64.StdEncoding.DecodeString(encoded)
+	return decoded, err
+}
+
+// Base64 encoding
+func encodeBase64(data []byte) string {
+	encoded := base64.StdEncoding.EncodeToString(data)
+	return encoded
+}
+
 // Base64 decoding (URL safe variant)
 func decodeBase64U(encoded string) ([]byte, error) {
 	decoded, err := base64.URLEncoding.DecodeString(encoded)

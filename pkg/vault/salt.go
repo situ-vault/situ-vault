@@ -6,11 +6,12 @@ import (
 )
 
 const (
-	saltLength = 8 // size also used by OpenSSL, but 16 is also common
+	SaltLength8  = 8 // size also used by OpenSSL, but 16 is also common
+	SaltLength16 = 16
 )
 
-func newSalt() []byte {
-	salt, err := randomBytes(saltLength)
+func newSalt(length int) []byte {
+	salt, err := randomBytes(length)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -8,8 +8,6 @@ import (
 
 // examples: (the mode is only the part following after "SITU_VAULT_V1##" until the next "##")
 // "SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##TNSIVLVV6EOGI===##GRDENILPW24R4YDA2I6MKT6JPLG5GM2HWC5S2PR7"
-// WIP: "SITU_VAULT_V1##C:AES256_GCM#KDF:ARGON2ID_T1_M65536_C4#SALT:R8B#ENC:BASE64URL##YW55IGNhc===##jA0EAw_BBPOQhPfTDInn-94hXmnBr9D8-4x5"
-// WIP: "SITU_VAULT_V1##C:NACL_SECRETBOX#KDF:SCRYPT_N32768_R8_P1#SALT:R16B#ENC:BASE64##YW55IGNhcm5hbCBwbGV===##jA0EAw/BBPOQhPfTDInn+94hXmnBr9D8+4x5"
 
 const (
 	code           string = `code` // field tag used to get the type prefix for the text representation from the struct
@@ -30,7 +28,7 @@ const (
 	AES256_GCM         Construct = "AES256_GCM"         // AEAD; Standard: Nonce: 12 byte, Tag: 16 byte (year 2000/2007)
 	NACL_SECRETBOX     Construct = "NACL_SECRETBOX"     // AE; XSalsa20-Poly1305; Standard: Nonce: 24 byte, Tag: 16 byte (year 2008)
 	XCHACHA20_POLY1305 Construct = "XCHACHA20_POLY1305" // AEAD; XChaCha20-Poly1305; Standard: Nonce: 24 byte, Tag: 16 byte (year 2008/2018)
-	NACL_BOX           Construct = "NACL_BOX"			// PKE; Curve25519-XSalsa20-Poly1305; Standard: PublicKey: 32 byte, SecretKey: 24 byte, Nonce: 24 byte, Tag: 16 byte
+	NACL_BOX           Construct = "NACL_BOX"           // PKE; Curve25519-XSalsa20-Poly1305; Standard: PublicKey: 32 byte, SecretKey: 24 byte, Nonce: 24 byte, Tag: 16 byte
 	NACL_BOX_SECRETBOX Construct = "NACL_BOX_SECRETBOX" // AE & PKE; NACL_SECRETBOX for the actual data, and NACL_BOX for a data encryption key
 )
 
@@ -107,9 +105,4 @@ func NewMode(text string) *Mode {
 		v.Field(i).SetString(fieldValue)
 	}
 	return m
-}
-
-func (m Mode) DeepEqual(m2 *Mode) bool {
-	// reflect.DeepEqual() uses == to compare strings, this fits
-	return reflect.DeepEqual(m, m2)
 }

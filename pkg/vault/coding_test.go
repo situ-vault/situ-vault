@@ -15,6 +15,16 @@ func Test_base32(t *testing.T) {
 	assert.Equal(t, "ORSXG5BNMRQXIYI=", e)
 }
 
+func Test_base64(t *testing.T) {
+	data := []byte("test-data")
+	e := encodeBase64(data)
+	assert.NotEqual(t, e, data)
+	d, err := decodeBase64(e)
+	assert.Nil(t, err)
+	assert.Equal(t, d, data)
+	assert.Equal(t, "dGVzdC1kYXRh", e)
+}
+
 func Test_base64U(t *testing.T) {
 	data := []byte("test-data")
 	e := encodeBase64U(data)

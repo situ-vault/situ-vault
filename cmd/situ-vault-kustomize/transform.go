@@ -42,7 +42,10 @@ func transformFile(wd string, filePath string, password string) {
 	}
 	transformed := content
 	for _, value := range secretManifest.Data {
-		cleartext, _ := vault.Decrypt(value, password)
+		cleartext, _, err := vault.Decrypt(value, password)
+		if err != nil {
+			log.Fatalf("Decryption failed: %q \n%s\n", err, value)
+		}
 		encoded := base64.StdEncoding.EncodeToString([]byte(cleartext))
 		transformed = bytes.Replace(transformed, []byte(value), []byte(encoded), 1)
 	}

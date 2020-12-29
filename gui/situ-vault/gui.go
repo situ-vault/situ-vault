@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"image/color"
 
 	"fyne.io/fyne"
@@ -12,6 +13,7 @@ import (
 	"fyne.io/fyne/widget"
 
 	"github.com/polarctos/situ-vault/pkg/vault"
+	"github.com/polarctos/situ-vault/pkg/vault/mode"
 )
 
 type operation string
@@ -21,7 +23,12 @@ const (
 	Decrypt operation = "Decrypt"
 )
 
-var modes = []string{"C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32"}
+var modes = []string{
+	mode.Defaults().Conservative.Text(),
+	mode.Defaults().Modern.Text(),
+	mode.Defaults().Secretbox.Text(),
+	mode.Defaults().XChaCha.Text(),
+}
 
 type experience struct {
 	model map[operation]*model
@@ -129,7 +136,7 @@ func newUi(model *model, action func(), refresh func(), getClipboard func() fyne
 
 func newEncryptUi(model *model, refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
 	action := func() {
-		result, err := vault.Encrypt(model.input, model.password)
+		result, err := vault.Encrypt(model.input, model.password, model.mode)
 		if err != nil {
 			showError(err)
 		} else {
@@ -141,11 +148,20 @@ func newEncryptUi(model *model, refresh func(), showError func(error), getClipbo
 
 func newDecryptUi(model *model, refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
 	action := func() {
-		result, err := vault.Decrypt(model.input, model.password)
+		result, modeText, err := vault.Decrypt(model.input, model.password)
 		if err != nil {
 			showError(err)
 		} else {
-			model.mode = modes[0] // FIXME needed next to decryption result if multiple modes exist
+			var found bool = false
+			for _, element := range modes {
+				if modeText == element {
+					model.mode = element
+					found = true
+				}
+			}
+			if !found {
+				showError(errors.New("mode not supported in the GUI"))
+			}
 			model.output = result
 		}
 	}

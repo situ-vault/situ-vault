@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"github.com/polarctos/situ-vault/pkg/vault/mode"
 	"log"
 	"os"
 	"testing"
@@ -44,6 +45,21 @@ func Test_handleCommand_decrypt_v1(t *testing.T) {
 	decryptArgs := []string{"situ-vault", "decrypt", "-password=test-pw", "-ciphertext=SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##TNSIVLVV6EOGI===##GRDENILPW24R4YDA2I6MKT6JPLG5GM2HWC5S2PR7"}
 	resultDecrypted := handleCommand(decryptArgs)
 	assert.Contains(t, resultDecrypted, "test-data")
+}
+
+func Test_handleCommand_mode(t *testing.T) {
+	password := testdata.RandomPassword(16)
+	cleartext := testdata.RandomDataBase64(500)
+	modeText := mode.Defaults().Modern.Text()
+
+	encryptArgs := []string{"situ-vault", "encrypt", "-password=" + password, "-cleartext=" + cleartext, "-mode=" + modeText}
+	resultEncrypted := handleCommand(encryptArgs)
+	assert.Contains(t, resultEncrypted, "ARGON2ID")
+	assert.Contains(t, resultEncrypted, "BASE62")
+
+	decryptArgs := []string{"situ-vault", "decrypt", "-password=" + password, "-ciphertext=" + resultEncrypted}
+	resultDecrypted := handleCommand(decryptArgs)
+	assert.Contains(t, resultDecrypted, cleartext)
 }
 
 // Helpers:

@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var salt = newSalt()
+var salt = newSalt(SaltLength8)
 
 func Test_aesgcm(t *testing.T) {
 	key := deriveKey([]byte("test-pw"), salt)
