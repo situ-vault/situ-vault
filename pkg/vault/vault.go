@@ -9,6 +9,11 @@ import (
 )
 
 func Encrypt(cleartext string, password string, modeText string) (messageText string, err error) {
+	cleartext, password, err = maybeFromFiles(cleartext, password)
+	if err != nil {
+		return "", err
+	}
+
 	mm, err := vaultmode.NewMode(modeText)
 	if err != nil {
 		return "", err
@@ -67,6 +72,11 @@ func Encrypt(cleartext string, password string, modeText string) (messageText st
 }
 
 func Decrypt(messageText string, password string) (cleartext string, modeText string, err error) {
+	messageText, password, err = maybeFromFiles(messageText, password)
+	if err != nil {
+		return "", "", err
+	}
+
 	var message *vaultmessage.Message
 	message, err = vaultmessage.NewMessage(messageText)
 	if err != nil {

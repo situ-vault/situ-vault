@@ -54,8 +54,10 @@ type ui struct {
 	password       *widget.Entry
 	passwordPaste  func()
 	passwordCopy   func()
+	passwordFile   func()
 	input          *widget.Entry
 	inputPaste     func()
+	inputFile      func()
 	modes          *widget.RadioGroup
 	modesAddCustom ToolbarLabeledItem
 	modesDialog    *customModesDialog
@@ -108,6 +110,7 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), getClipbo
 		model.input = ""
 		model.mode = modes[0]
 		model.output = ""
+		u.password.Password = true
 		updateUiFromModel()
 	}
 
@@ -133,10 +136,26 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), getClipbo
 		model.password = getClipboard().Content()
 		updateUiFromModel()
 	}
+	u.passwordFile = func() {
+		filePathViaDialog(w, func(filePath string) {
+			updateModelFromUi()
+			model.password = filePath
+			u.password.Password = false
+			updateUiFromModel()
+		})
+	}
+
 	u.inputPaste = func() {
 		updateModelFromUi()
 		model.input = getClipboard().Content()
 		updateUiFromModel()
+	}
+	u.inputFile = func() {
+		filePathViaDialog(w, func(filePath string) {
+			updateModelFromUi()
+			model.input = filePath
+			updateUiFromModel()
+		})
 	}
 
 	u.clearClipboard = func() {
@@ -148,6 +167,16 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), getClipbo
 	})
 
 	return u
+}
+
+func filePathViaDialog(w fyne.Window, filePathCallback func(string)) {
+	callback := func(file fyne.URIReadCloser, err error) {
+		if err == nil && file != nil {
+			uri := file.URI()
+			filePathCallback(uri.String())
+		}
+	}
+	dialog.ShowFileOpen(callback, w)
 }
 
 func newEncryptUi(w fyne.Window, model *model, refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
@@ -248,12 +277,15 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 				widget.NewToolbar(
 					NewToolbarLabeledAction(theme.ContentPasteIcon(), "Paste", ui.passwordPaste),
 					NewToolbarLabeledAction(theme.ContentCopyIcon(), "Copy", ui.passwordCopy),
+					NewToolbarLabeledAction(theme.FolderOpenIcon(), "File", ui.passwordFile),
 				),
 			)},
 			{Text: inputName + ":", Widget: container.NewVBox(
 				ui.input,
 				widget.NewToolbar(
-					NewToolbarLabeledAction(theme.ContentPasteIcon(), "Paste", ui.inputPaste)),
+					NewToolbarLabeledAction(theme.ContentPasteIcon(), "Paste", ui.inputPaste),
+					NewToolbarLabeledAction(theme.FolderOpenIcon(), "File", ui.inputFile),
+				),
 			)},
 		},
 		OnSubmit:   ui.action,
