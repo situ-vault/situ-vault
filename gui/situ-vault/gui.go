@@ -57,20 +57,14 @@ type ui struct {
 	input          *widget.Entry
 	inputPaste     func()
 	modes          *widget.RadioGroup
-	modesAddCustom func()
+	modesAddCustom ToolbarLabeledItem
+	modesDialog    *customModesDialog
 	action         func()
 	clear          func()
 	output         *widget.Entry
 	outputCut      func()
 	outputCopy     func()
 	clearClipboard func()
-}
-
-type customModeBuilder struct {
-	construct *widget.RadioGroup
-	kdf       *widget.RadioGroup
-	salt      *widget.RadioGroup
-	encoding  *widget.RadioGroup
 }
 
 func newUi(w fyne.Window, model *model, action func(), refresh func(), getClipboard func() fyne.Clipboard) *ui {
@@ -149,42 +143,9 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), getClipbo
 		getClipboard().SetContent("")
 	}
 
-	modeBuilder := customModeBuilder{
-		construct: widget.NewRadioGroup(vaultmode.Constructs.AllValues(), func(string) {}),
-		kdf:       widget.NewRadioGroup(vaultmode.KeyDerivationFunctions.AllValues(), func(string) {}),
-		salt:      widget.NewRadioGroup(vaultmode.Salts.AllValues(), func(string) {}),
-		encoding:  widget.NewRadioGroup(vaultmode.Encodings.AllValues(), func(string) {}),
-	}
-	// pre-select the first element, thus it is always a valid setup:
-	modeBuilder.construct.SetSelected(vaultmode.Constructs.AllValues()[0])
-	modeBuilder.kdf.SetSelected(vaultmode.KeyDerivationFunctions.AllValues()[0])
-	modeBuilder.salt.SetSelected(vaultmode.Salts.AllValues()[0])
-	modeBuilder.encoding.SetSelected(vaultmode.Encodings.AllValues()[0])
-	callback := func(ok bool) {
-		if ok {
-			customMode := vaultmode.Mode{
-				Construct: vaultmode.Construct(modeBuilder.construct.Selected),
-				Kdf:       vaultmode.KeyDerivationFunction(modeBuilder.kdf.Selected),
-				Salt:      vaultmode.Salt(modeBuilder.salt.Selected),
-				Encoding:  vaultmode.Encoding(modeBuilder.encoding.Selected),
-			}
-			customModeText := customMode.Text()
-			u.modes.Append(customModeText)
-			u.modes.SetSelected(customModeText)
-			refresh()
-		}
-	}
-	content := &widget.Form{
-		Items: []*widget.FormItem{
-			{Text: "Construct:", Widget: modeBuilder.construct},
-			{Text: "Key Derivation Function:", Widget: modeBuilder.kdf},
-			{Text: "Salt:", Widget: modeBuilder.salt},
-			{Text: "Encoding:", Widget: modeBuilder.encoding},
-		},
-	}
-	u.modesAddCustom = func() {
-		dialog.ShowCustomConfirm("Build Custom Mode", "Add", "Cancel", content, callback, w)
-	}
+	u.modesAddCustom = NewToolbarLabeledAction(theme.ColorPaletteIcon(), "Add Custom Mode", func() {
+		showCustomModeDialog(w, u, refresh)
+	})
 
 	return u
 }
@@ -317,8 +278,7 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 	modeFormItem := widget.NewFormItem("Mode:", modeWidget)
 	switch op {
 	case Encrypt:
-		modeWidget.Add(widget.NewToolbar(
-			NewToolbarLabeledAction(theme.ColorPaletteIcon(), "Add Custom Mode", ui.modesAddCustom)))
+		modeWidget.Add(widget.NewToolbar(ui.modesAddCustom))
 		form.Items = append(form.Items, modeFormItem)
 	case Decrypt:
 		result.Items = append([]*widget.FormItem{modeFormItem}, result.Items...)
