@@ -1,8 +1,7 @@
 package main
 
 import (
-	"image/color"
-
+	"errors"
 	"fyne.io/fyne"
 	"fyne.io/fyne/canvas"
 	"fyne.io/fyne/container"
@@ -10,6 +9,7 @@ import (
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/theme"
 	"fyne.io/fyne/widget"
+	"image/color"
 
 	"github.com/polarctos/situ-vault/pkg/vault"
 	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
@@ -66,10 +66,11 @@ type ui struct {
 	output         *widget.Entry
 	outputCut      func()
 	outputCopy     func()
+	outputFile     func()
 	clearClipboard func()
 }
 
-func newUi(w fyne.Window, model *model, action func(), refresh func(), getClipboard func() fyne.Clipboard) *ui {
+func newUi(w fyne.Window, model *model, action func(), refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
 	u := &ui{}
 	u.password = widget.NewPasswordEntry()
 	u.input = widget.NewMultiLineEntry()
@@ -126,6 +127,28 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), getClipbo
 	u.outputCopy = func() {
 		getClipboard().SetContent(model.output)
 	}
+	u.outputFile = func() {
+		if model.output == "" {
+			showError(errors.New("no value to save yet"))
+			return
+		}
+		callback := func(file fyne.URIWriteCloser, err error) {
+			if err == nil && file != nil {
+				_, err := file.Write([]byte(model.output))
+				if err != nil {
+					showError(err)
+				}
+			}
+		}
+		fileSaveDialog := dialog.NewFileSave(callback, w)
+		listUri, err := wdListUri()
+		if err != nil {
+			showError(err)
+		}
+		fileSaveDialog.SetLocation(listUri)
+		fileSaveDialog.Resize(fyne.NewSize(700, 600))
+		fileSaveDialog.Show()
+	}
 
 	u.passwordCopy = func() {
 		updateModelFromUi()
@@ -137,7 +160,7 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), getClipbo
 		updateUiFromModel()
 	}
 	u.passwordFile = func() {
-		filePathViaDialog(w, func(filePath string) {
+		filePathViaDialog(w, showError, func(filePath string) {
 			updateModelFromUi()
 			model.password = filePath
 			u.password.Password = false
@@ -151,7 +174,7 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), getClipbo
 		updateUiFromModel()
 	}
 	u.inputFile = func() {
-		filePathViaDialog(w, func(filePath string) {
+		filePathViaDialog(w, showError, func(filePath string) {
 			updateModelFromUi()
 			model.input = filePath
 			updateUiFromModel()
@@ -169,14 +192,21 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), getClipbo
 	return u
 }
 
-func filePathViaDialog(w fyne.Window, filePathCallback func(string)) {
+func filePathViaDialog(w fyne.Window, showError func(error), filePathCallback func(string)) {
 	callback := func(file fyne.URIReadCloser, err error) {
 		if err == nil && file != nil {
 			uri := file.URI()
 			filePathCallback(uri.String())
 		}
 	}
-	dialog.ShowFileOpen(callback, w)
+	fileOpenDialog := dialog.NewFileOpen(callback, w)
+	listUri, err := wdListUri()
+	if err != nil {
+		showError(err)
+	}
+	fileOpenDialog.SetLocation(listUri)
+	fileOpenDialog.Resize(fyne.NewSize(700, 600))
+	fileOpenDialog.Show()
 }
 
 func newEncryptUi(w fyne.Window, model *model, refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
@@ -188,7 +218,7 @@ func newEncryptUi(w fyne.Window, model *model, refresh func(), showError func(er
 			model.output = result
 		}
 	}
-	return newUi(w, model, action, refresh, getClipboard)
+	return newUi(w, model, action, refresh, showError, getClipboard)
 }
 
 func newDecryptUi(w fyne.Window, model *model, refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
@@ -202,7 +232,7 @@ func newDecryptUi(w fyne.Window, model *model, refresh func(), showError func(er
 			model.output = result
 		}
 	}
-	return newUi(w, model, action, refresh, getClipboard)
+	return newUi(w, model, action, refresh, showError, getClipboard)
 }
 
 func newModel(op operation) *model {
@@ -218,7 +248,7 @@ func (exp *experience) loadUi(application fyne.App) {
 
 	w := application.NewWindow("situ-vault")
 	w.SetFixedSize(true)
-	w.Resize(fyne.NewSize(800, 500))
+	w.Resize(fyne.NewSize(800, 900))
 
 	showError := func(err error) {
 		dialog.ShowError(err, w)
@@ -296,6 +326,7 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 	toolbar := widget.NewToolbar(
 		NewToolbarLabeledAction(theme.ContentCutIcon(), "Cut", ui.outputCut),
 		NewToolbarLabeledAction(theme.ContentCopyIcon(), "Copy", ui.outputCopy),
+		NewToolbarLabeledAction(theme.FolderIcon(), "Save", ui.outputFile),
 	)
 	result := &widget.Form{
 		Items: []*widget.FormItem{
