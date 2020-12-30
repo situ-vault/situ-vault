@@ -26,10 +26,16 @@ var KeyDerivationFunctions = keyDerivationFunctions{
 }
 
 func ParseKeyDerivationFunction(s string) (KeyDerivationFunction, error) {
-	for _, value := range allValues(reflect.ValueOf(KeyDerivationFunctions)) {
+	for _, value := range allKdfValues {
 		if s == value {
 			return KeyDerivationFunction(s), nil
 		}
 	}
 	return "", errors.New("Invalid value: " + s)
+}
+
+var allKdfValues = allValues(reflect.ValueOf(KeyDerivationFunctions))
+
+func (k keyDerivationFunctions) AllValues() []string {
+	return allKdfValues
 }

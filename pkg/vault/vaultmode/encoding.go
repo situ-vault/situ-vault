@@ -32,10 +32,16 @@ var Encodings = encodings{
 }
 
 func ParseEncoding(s string) (Encoding, error) {
-	for _, value := range allValues(reflect.ValueOf(Encodings)) {
+	for _, value := range allEncodingValues {
 		if s == value {
 			return Encoding(s), nil
 		}
 	}
 	return "", errors.New("Invalid value: " + s)
+}
+
+var allEncodingValues = allValues(reflect.ValueOf(Encodings))
+
+func (e encodings) AllValues() []string {
+	return allEncodingValues
 }

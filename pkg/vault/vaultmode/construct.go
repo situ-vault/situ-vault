@@ -28,10 +28,16 @@ const (
 )
 
 func ParseConstruct(s string) (Construct, error) {
-	for _, value := range allValues(reflect.ValueOf(Constructs)) {
+	for _, value := range allConstructValues {
 		if s == value {
 			return Construct(s), nil
 		}
 	}
 	return "", errors.New("Invalid value: " + s)
+}
+
+var allConstructValues = allValues(reflect.ValueOf(Constructs))
+
+func (c constructs) AllValues() []string {
+	return allConstructValues
 }

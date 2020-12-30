@@ -17,16 +17,22 @@ type salts struct {
 	R16b Salt
 }
 
-var Salts salts = salts{
+var Salts = salts{
 	R8b:  R8b,
 	R16b: R16b,
 }
 
 func ParseSalt(s string) (Salt, error) {
-	for _, value := range allValues(reflect.ValueOf(Salts)) {
+	for _, value := range allSaltValues {
 		if s == value {
 			return Salt(s), nil
 		}
 	}
 	return "", errors.New("Invalid value: " + s)
+}
+
+var allSaltValues = allValues(reflect.ValueOf(Salts))
+
+func (s salts) AllValues() []string {
+	return allSaltValues
 }
