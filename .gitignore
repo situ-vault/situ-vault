@@ -7,3 +7,6 @@
 
 # Test binary, built with `go test -c`
 *.test
+
+# Cross compilation outputs
+*/fyne-cross/*
