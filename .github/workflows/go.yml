@@ -61,11 +61,15 @@ jobs:
           fyne-cross linux   -arch=amd64,arm64,386 -output=situ-vault-gui ./situ-vault
           fyne-cross darwin  -arch=amd64           -output=situ-vault-gui ./situ-vault
           fyne-cross windows -arch=amd64           -output=situ-vault-gui ./situ-vault
+          echo "package macos to keep it executable"
+          tar cfvz fyne-cross/dist/darwin-amd64/situ-vault-gui.app.tar.gz fyne-cross/dist/darwin-amd64/situ-vault-gui.app
 
       - name: Upload GUI dist
         uses: actions/upload-artifact@v2
         if: ${{ matrix.module == 'gui' }}
         with:
           name: dist-gui
-          path: gui/fyne-cross/dist/ # or path/to/artifact
+          path: |
+            gui/fyne-cross/dist/**/*.tar.gz
+            gui/fyne-cross/dist/**/*.zip
           retention-days: 1
