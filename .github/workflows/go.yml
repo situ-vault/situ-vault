@@ -6,24 +6,23 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  GO_VERSION: '1.15.6'
+
 jobs:
 
-  build:
-    name: Build
+  test:
+    name: Test
     runs-on: ubuntu-20.04
     strategy:
       matrix:
         module: [ 'pkg', 'cmd', 'gui' ]
-
     steps:
 
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: '1.15.6'
-          stable: false
-
-      - run: go version
+          go-version: ${{ env.GO_VERSION }}
 
       - name: Check out code
         uses: actions/checkout@v2
@@ -46,30 +45,64 @@ jobs:
         working-directory: ${{ matrix.module }}
         run: go test -v ./...
 
+
+  package-gui:
+    name: Package GUI
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        platform: [ 'linux', 'darwin', 'windows' ]
+        arch: [ 'amd64' ]
+        include:
+          - platform: 'linux'
+            arch: 'arm64'
+          - platform: 'linux'
+            arch: '386'
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
       - name: Setup fyne-cross
         working-directory: build
-        if: ${{ matrix.module == 'gui' }}
         run: |
           go mod download
           go install github.com/fyne-io/fyne-cross
 
-      - name: Build fyne GUI
-        working-directory: ${{ matrix.module }}
-        if: ${{ matrix.module == 'gui' }}
+      - name: Vendor dependencies for GUI
+        working-directory: gui
         run: |
           go mod vendor
-          fyne-cross linux   -arch=amd64,arm64,386 -output=situ-vault-gui ./situ-vault
-          fyne-cross darwin  -arch=amd64           -output=situ-vault-gui ./situ-vault
-          fyne-cross windows -arch=amd64           -output=situ-vault-gui ./situ-vault
-          echo "package macos to keep it executable"
-          tar cfvz fyne-cross/dist/darwin-amd64/situ-vault-gui.app.tar.gz fyne-cross/dist/darwin-amd64/situ-vault-gui.app
+
+      - name: Build fyne GUI
+        working-directory: gui
+        run: |
+          fyne-cross "$MATRIX_PLATFORM" -arch="$MATRIX_ARCH" -output=situ-vault ./situ-vault
+        env:
+          MATRIX_PLATFORM: ${{ matrix.platform }}
+          MATRIX_ARCH: ${{ matrix.arch }}
+
+      - name: Create tar for GUI
+        working-directory: gui
+        # only needed for macos to keep the executable flag
+        if: ${{ matrix.platform == 'darwin' }}
+        run: |
+          DIST_FOLDER="fyne-cross/dist/$MATRIX_PLATFORM-$MATRIX_ARCH"
+          tar cfvz "$DIST_FOLDER/situ-vault.app.tar.gz" "$DIST_FOLDER/situ-vault.app"
+        env:
+          MATRIX_PLATFORM: ${{ matrix.platform }}
+          MATRIX_ARCH: ${{ matrix.arch }}
 
       - name: Upload GUI dist
         uses: actions/upload-artifact@v2
-        if: ${{ matrix.module == 'gui' }}
         with:
-          name: dist-gui
+          name: ${{ format('dist-gui-{0}-{1}', matrix.platform, matrix.arch) }}
           path: |
-            gui/fyne-cross/dist/**/*.tar.gz
-            gui/fyne-cross/dist/**/*.zip
+            gui/fyne-cross/dist/*/*.tar.gz
+            gui/fyne-cross/dist/*/*.zip
           retention-days: 1
