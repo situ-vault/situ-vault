@@ -10,6 +10,7 @@
 
 # Cross compilation outputs
 */fyne-cross/*
+cmd/dist/*
 
 # Vendoring during packaging
 gui/vendor/
