@@ -4,8 +4,6 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"errors"
-	"log"
-
 	"golang.org/x/crypto/chacha20poly1305"
 	"golang.org/x/crypto/nacl/secretbox"
 )
@@ -14,7 +12,7 @@ import (
 func EncryptAes(data []byte, key *Key) ([]byte, error) {
 	block, err := aes.NewCipher(key.key)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	// standard nonce length: 12 bytes
 	var nonce [12]byte
@@ -29,7 +27,7 @@ func EncryptAes(data []byte, key *Key) ([]byte, error) {
 func DecryptAes(data []byte, key *Key) ([]byte, error) {
 	block, err := aes.NewCipher(key.key)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	aesGcm, err := cipher.NewGCM(block)
 	if err != nil {

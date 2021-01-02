@@ -20,15 +20,18 @@ type PasswordConfig struct {
 	File string `json:"file,omitempty" yaml:"file,omitempty"`
 }
 
+var logStdout = log.New(os.Stdout, "", 0)
+var logStderr = log.New(os.Stderr, "", 0)
+
 func main() {
 	if len(os.Args) < 2 {
-		log.Fatal("Wrong number of arguments:", os.Args)
+		logStderr.Fatal("Wrong number of arguments:", os.Args)
 	}
 
 	// second argument is the file path
 	content, err := ioutil.ReadFile(os.Args[1])
 	if err != nil {
-		log.Fatal("Failed to read file: ", os.Args[1])
+		logStderr.Fatal("Failed to read file: ", os.Args[1])
 	}
 
 	wd, err := os.Getwd()
@@ -40,7 +43,7 @@ func main() {
 	var manifest Manifest
 	err = yaml.Unmarshal(content, &manifest)
 	if err != nil {
-		log.Fatalf("Error unmarshalling manifest: %q \n%s\n", err, content)
+		logStderr.Fatalf("Error unmarshalling manifest: %q \n%s\n", err, content)
 	}
 
 	transform(&manifest, wd)

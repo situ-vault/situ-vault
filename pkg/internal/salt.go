@@ -2,7 +2,6 @@ package internal
 
 import (
 	"crypto/rand"
-	"log"
 )
 
 const (
@@ -13,7 +12,7 @@ const (
 func NewSalt(length int) []byte {
 	salt, err := randomBytes(length)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	return salt
 }

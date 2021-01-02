@@ -2,8 +2,8 @@ package main
 
 import (
 	"bytes"
-	"log"
 	"os"
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,6 +12,8 @@ import (
 	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
 )
 
+var regexVaultMessage = regexp.MustCompile(`(?m)^(SITU_VAULT_V1)##([A-Z]+:.+#.+:.+)##(.+)$`)
+
 var predefined = testdata.PredefinedDecrypt()
 
 func Test_main(t *testing.T) {
@@ -19,12 +21,14 @@ func Test_main(t *testing.T) {
 	defer func() { os.Args = oldArgs }()
 
 	os.Args = []string{"situ-vault", "encrypt", "-password=test-pw", "-cleartext=test-data"}
-	outputEncrypt := captureOutput(main)
-	assert.Contains(t, outputEncrypt, "SITU_VAULT")
+	outputEncrypt, outputErr := captureOutput(main)
+	assert.Regexp(t, regexVaultMessage, outputEncrypt)
+	assert.Equal(t, "", outputErr)
 
 	os.Args = []string{"situ-vault", "decrypt", "-password=" + predefined.Password, "-ciphertext=" + predefined.Ciphertext}
-	outputDecrypt := captureOutput(main)
+	outputDecrypt, _ := captureOutput(main)
 	assert.Contains(t, outputDecrypt, predefined.Cleartext)
+	assert.Equal(t, "", outputErr)
 }
 
 func Test_handleCommand_roundTrip(t *testing.T) {
@@ -64,10 +68,11 @@ func Test_handleCommand_mode(t *testing.T) {
 
 // Helpers:
 
-func captureOutput(function func()) string {
-	var buffer bytes.Buffer
-	log.SetOutput(&buffer)
+func captureOutput(function func()) (out string, err string) {
+	var bufferOut bytes.Buffer
+	var bufferErr bytes.Buffer
+	logStdout.SetOutput(&bufferOut)
+	logStderr.SetOutput(&bufferErr)
 	function()
-	log.SetOutput(os.Stderr)
-	return buffer.String()
+	return bufferOut.String(), bufferErr.String()
 }

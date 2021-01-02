@@ -9,11 +9,12 @@ import (
 	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
 )
 
-func main() {
-	log.Println("Running situ-vault")
+var logStdout = log.New(os.Stdout, "", 0)
+var logStderr = log.New(os.Stderr, "", 0)
 
+func main() {
 	result := handleCommand(os.Args)
-	log.Println("Result: " + result)
+	logStdout.Print(result)
 }
 
 var defaultModeText string = vaultmode.Defaults().Conservative.Text()
@@ -29,8 +30,7 @@ func handleCommand(args []string) string {
 	decryptCiphertext := decryptCmd.String("ciphertext", "", "the text to decrypt")
 
 	if len(args) < 2 {
-		log.Println("expected 'encrypt' or 'decrypt' subcommands")
-		os.Exit(1)
+		logStderr.Fatal("expected 'encrypt' or 'decrypt' subcommands")
 	}
 
 	switch args[1] {
@@ -38,19 +38,18 @@ func handleCommand(args []string) string {
 		encryptCmd.Parse(args[2:])
 		ciphertext, err := vault.Encrypt(*encryptCleartext, *encryptPassword, *encryptModeText)
 		if err != nil {
-			log.Fatal("encrypt error: ", err)
+			logStderr.Fatal("encrypt error: ", err)
 		}
 		return ciphertext
 	case "decrypt":
 		decryptCmd.Parse(args[2:])
 		cleartext, _, err := vault.Decrypt(*decryptCiphertext, *decryptPassword)
 		if err != nil {
-			log.Fatal("decrypt error: ", err)
+			logStderr.Fatal("decrypt error: ", err)
 		}
 		return cleartext
 	default:
-		log.Println("expected 'encrypt' or 'decrypt' subcommands")
-		os.Exit(1)
+		logStderr.Fatal("expected 'encrypt' or 'decrypt' subcommands")
 		return "" // cannot be reached
 	}
 }
