@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,7 @@ func Test_main(t *testing.T) {
 
 	os.Args = []string{"situ-vault", "decrypt", "-password=" + predefined.Password, "-ciphertext=" + predefined.Ciphertext}
 	outputDecrypt, _ := captureOutput(main)
-	assert.Contains(t, outputDecrypt, predefined.Cleartext)
+	assert.Equal(t, strings.TrimSuffix(outputDecrypt, "\n"), predefined.Cleartext)
 	assert.Equal(t, "", outputErr)
 }
 
@@ -37,12 +38,12 @@ func Test_handleCommand_roundTrip(t *testing.T) {
 
 	encryptArgs := []string{"situ-vault", "encrypt", "-password=" + password, "-cleartext=" + cleartext}
 	resultEncrypted := handleCommand(encryptArgs)
-	assert.Contains(t, resultEncrypted, "SITU_VAULT")
+	assert.Regexp(t, regexVaultMessage, resultEncrypted)
 	assert.NotContains(t, resultEncrypted, cleartext)
 
 	decryptArgs := []string{"situ-vault", "decrypt", "-password=" + password, "-ciphertext=" + resultEncrypted}
 	resultDecrypted := handleCommand(decryptArgs)
-	assert.Contains(t, resultDecrypted, cleartext)
+	assert.Equal(t, resultDecrypted, cleartext)
 }
 
 func Test_handleCommand_decrypt_v1(t *testing.T) {

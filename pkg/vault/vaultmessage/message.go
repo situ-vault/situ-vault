@@ -39,7 +39,8 @@ func (m Message) Text() string {
 }
 
 func NewMessage(data string) (*Message, error) {
-	split := strings.Split(data, separator)
+	clean := strings.TrimSpace(data)
+	split := strings.Split(clean, separator)
 	if len(split) != 4 {
 		return nil, errors.New("unknown input length")
 	}

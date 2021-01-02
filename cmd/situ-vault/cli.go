@@ -14,7 +14,7 @@ var logStderr = log.New(os.Stderr, "", 0)
 
 func main() {
 	result := handleCommand(os.Args)
-	logStdout.Print(result)
+	logStdout.Print(result) // careful this adds a newline at the end!
 }
 
 var defaultModeText string = vaultmode.Defaults().Conservative.Text()
@@ -36,6 +36,12 @@ func handleCommand(args []string) string {
 	switch args[1] {
 	case "encrypt":
 		encryptCmd.Parse(args[2:])
+		if *encryptPassword == "" {
+			logStderr.Fatal("missing password")
+		}
+		if *encryptCleartext == "" {
+			logStderr.Fatal("missing cleartext")
+		}
 		ciphertext, err := vault.Encrypt(*encryptCleartext, *encryptPassword, *encryptModeText)
 		if err != nil {
 			logStderr.Fatal("encrypt error: ", err)
@@ -43,6 +49,12 @@ func handleCommand(args []string) string {
 		return ciphertext
 	case "decrypt":
 		decryptCmd.Parse(args[2:])
+		if *decryptPassword == "" {
+			logStderr.Fatal("missing password")
+		}
+		if *decryptCiphertext == "" {
+			logStderr.Fatal("missing ciphertext")
+		}
 		cleartext, _, err := vault.Decrypt(*decryptCiphertext, *decryptPassword)
 		if err != nil {
 			logStderr.Fatal("decrypt error: ", err)
