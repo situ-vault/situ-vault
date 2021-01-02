@@ -50,6 +50,9 @@ func Encrypt(cleartext string, password string, modeText string) (messageText st
 	var encodedSalt string
 	var encodedCiphertext string
 	switch mm.Encoding {
+	case vaultmode.Encodings.Hex:
+		encodedSalt = internal.EncodeHex(salt)
+		encodedCiphertext = internal.EncodeHex(encrypted)
 	case vaultmode.Encodings.Base32:
 		encodedSalt = internal.EncodeBase32(salt)
 		encodedCiphertext = internal.EncodeBase32(encrypted)
@@ -87,6 +90,9 @@ func Decrypt(messageText string, password string) (cleartext string, modeText st
 	var decodedSalt []byte
 	var decodedCiphertext []byte
 	switch mm.Encoding {
+	case vaultmode.Encodings.Hex:
+		decodedSalt, err = internal.DecodeHex(message.Salt)
+		decodedCiphertext, err = internal.DecodeHex(message.Ciphertext)
 	case vaultmode.Encodings.Base32:
 		decodedSalt, err = internal.DecodeBase32(message.Salt)
 		decodedCiphertext, err = internal.DecodeBase32(message.Ciphertext)

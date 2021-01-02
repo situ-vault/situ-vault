@@ -3,6 +3,8 @@ package internal
 import (
 	"encoding/base32"
 	"encoding/base64"
+	"encoding/hex"
+	"strings"
 
 	"github.com/nicksnyder/basen"
 )
@@ -52,5 +54,17 @@ func DecodeBase62(encoded string) ([]byte, error) {
 // Base62 encoding
 func EncodeBase62(data []byte) string {
 	encoded := basen.Base62Encoding.EncodeToString(data)
+	return encoded
+}
+
+// Hex decoding
+func DecodeHex(encoded string) ([]byte, error) {
+	decoded, err := hex.DecodeString(encoded)
+	return decoded, err
+}
+
+// Hex encoding
+func EncodeHex(data []byte) string {
+	encoded := strings.ToUpper(hex.EncodeToString(data))
 	return encoded
 }

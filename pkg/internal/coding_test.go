@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -44,4 +46,18 @@ func Test_base62(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, d, data)
 	assert.Equal(t, "fGF8D3pR6tsH", e)
+}
+
+func Test_hex(t *testing.T) {
+	data := []byte("test-data")
+	e := EncodeHex(data)
+	assert.NotEqual(t, e, data)
+	assert.Regexp(t, regexp.MustCompile(`^([0-9A-F]{2})+$`), e, "only uppercase intended")
+	d, err := DecodeHex(e)
+	assert.Nil(t, err)
+	assert.Equal(t, d, data)
+	d, err = DecodeHex(strings.ToLower(e))
+	assert.Nil(t, err, "also allow decoding of lowercase")
+	assert.Equal(t, d, data)
+	assert.Equal(t, "746573742D64617461", e)
 }

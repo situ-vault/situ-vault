@@ -8,7 +8,7 @@ import (
 type Encoding string
 
 const (
-	None      Encoding = "NONE"      // No encoding, just bytes
+	Hex       Encoding = "HEX"       // Base16
 	Base32    Encoding = "BASE32"    // Base32
 	Base62    Encoding = "BASE62"    // Base62 (is Base64 without the 2 special characters)
 	Base64    Encoding = "BASE64"    // Base64
@@ -16,7 +16,7 @@ const (
 )
 
 type encodings struct {
-	None      Encoding
+	Hex       Encoding
 	Base32    Encoding
 	Base62    Encoding
 	Base64    Encoding
@@ -24,7 +24,7 @@ type encodings struct {
 }
 
 var Encodings = encodings{
-	None:      None,
+	Hex:       Hex,
 	Base32:    Base32,
 	Base62:    Base62,
 	Base64:    Base64,
