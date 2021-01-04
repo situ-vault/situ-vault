@@ -1,3 +1,5 @@
+# situ-vault kustomize exec plugin
+
 ## Build:
 
 Build and place executable into a conforming *kustomize* exec plugin directory:
@@ -32,4 +34,30 @@ Build configuration and apply it directly:
 ```
 kustomize build --enable_alpha_plugins testdata/example | kubectl apply -f - 
 kubectl get all
+```
+
+Service should be running at, e.g: [http://localhost:8666/]
+
+
+# Ingress TLS setup
+
+Create nginx ingress controller for a local setup:
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.43.0/deploy/static/provider/cloud/deploy.yaml
+kubectl --namespace=ingress-nginx get all
+```
+
+To create new certificates:
+
+```
+mkdir testdata/cert
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout testdata/cert/key.pem -out testdata/cert/cert.pem -subj "/CN=localhost"
+kubectl create secret tls secret-tls --key testdata/cert/key.pem --cert testdata/cert/cert.pem
+```
+
+Test request:
+
+```
+curl -vk https://localhost:443/
 ```

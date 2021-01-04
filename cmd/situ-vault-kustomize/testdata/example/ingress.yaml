@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: the-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+    - hosts:
+        - localhost
+      secretName: secret-tls
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: the-service
+              servicePort: 8666
