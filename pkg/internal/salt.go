@@ -7,6 +7,8 @@ import (
 const (
 	SaltLength8  = 8 // size also used by OpenSSL, but 16 is also common
 	SaltLength16 = 16
+	SaltLength24 = 24
+	SaltLength32 = 32
 )
 
 func NewSalt(length int) []byte {

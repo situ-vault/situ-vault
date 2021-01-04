@@ -12,13 +12,13 @@ This repository contains tools to locally encrypt and decrypt secrets stored in 
 * Slim text based output:
     * 🔣 Various encodings that enable **easy copy 'n' paste** like Base32 or Base62 (but also the ubiquitous Base64)
     * 📦 Selected suite of ciphers stored as a prefix to the ciphertext to allow easy decryption without further configuration
-* Two user interfaces that should suit everyone:
+* Two user interfaces:
     * ⌨️ CLI: Simplistic **command line interface**, reads from files or flags and outputs to stdout
     * 🖱️ GUI: Cross-platform **graphical user interface** built with ``fyne.io``
 * Application interfaces:
-    * 🐵 Easy to use Go pkg
+    * 🐵 Concise Go pkg
     * 📃 Text based output and **only standard algorithms** allow straightforward implementation with other languages and tools
-* Cloud native integration:
+* Cloud native tools integration:
     * ⛅ Usage of encrypted secrets via a **kustomize exec plugin** to safely store encrypted secrets in a repository but directly use them for Kubernetes application deployments
 
 The name is inspired from the latin ***In situ*** which can mean ***in place***. As ``situ-vault`` only works with the
@@ -57,6 +57,26 @@ some inputs!
 
 Surrounding whitespace around ciphertexts is cleaned before parsing.
 
+## Format
+
+The output of ``situ-vault`` is formatted as text, called a ``message`` or ``vaultmessage``:
+```
+# whole vaultmessage: (encoding of salt and ciphertext depending on vaultmode)
+SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2
+<fix-version>##<vaultmode>##<salt>##<ciphertext>
+
+# with vaultmode:
+##<code>:<value>#<code>:<value>#<...>##
+```
+
+A text based format instead of a binary one was chosen to enable easy diffing for version control and simple copying.
+A self describing format enables decryption without further configuration by the user and allows the reuse of a mode for
+further ciphertexts.
+
+The authentication tags are directly part of the ciphertext and not separated by ``##`` as this is the format most often
+used by the crypto libraries. However, the nonces are not stored as a prefix of the ciphertext, as these are taken from
+the key derivation function too and thus not needed in the message.
+
 ## Security
 
 None of the actual cryptographic algorithms are re-implemented in this repository. Only the implementations from
@@ -69,33 +89,47 @@ another not as safe place or when in transit.
 
 ### Choice
 
-The user is able to build a mode or cipher suite based on preferences or requirements. At least at this point in time,
-all the provided options are seen as a suitable variant.
+Sometimes choice in cryptography algorithms is seen as undesired by library or tool authors.
+However, choice also enables the user to comply to existing requirements or ease crypto agility when new algorithms
+become necessary. Thus, in ``situ-vault`` the user is able to build a cipher suite, called ``mode`` or ``vaultmode``,
+based on preferences, compliance requirements or tooling interoperability needs.
 
-Constructs:
+At least at this point in time, all the provided options are seen as suitable variants.
 
-* AES-256-GCM (Key: 32 byte, Nonce: 12 byte, Tag: 16 byte) ``"AES256_GCM"``
-* NaCl Secretbox (XSalsa20-Poly1305; Key: 32 byte, Nonce: 24 byte, Tag: 16 byte) ``"NACL_SECRETBOX"``
-* XChaCha20-Poly1305 (Key: 32 byte, Nonce: 24 byte, Tag: 16 byte) ``"XCHACHA20_POLY1305"``
+#### Constructs:
 
-Key Derivation Functions:
+Name | Notes | Value (``C``)
+--- | --- | ---
+AES-256-GCM | Key: 32 byte, Nonce: 12 byte, Tag: 16 byte | ``"AES256_GCM"``
+NaCl Secretbox / XSalsa20-Poly1305 | Key: 32 byte, Nonce: 24 byte, Tag: 16 byte | ``"NACL_SECRETBOX"``
+XChaCha20-Poly1305 | Key: 32 byte, Nonce: 24 byte, Tag: 16 byte | ``"XCHACHA20_POLY1305"``
 
-* PBKDF2 with SHA-256 and 10000 iterations ``"PBKDF2_SHA256_I10K"``
-* Argon2id with time=1, memory=64*1024 and threads=4 ``"ARGON2ID_T1_M65536_C4"``
-* scrypt with N=32768, r=8 and p=1 ``"SCRYPT_N32768_R8_P1"``
+#### Key Derivation Functions:
 
-Salts:
+Name | Notes | Value (``KDF``)
+--- | --- | ---
+PBKDF2 | With SHA-256 and 10000 iterations | ``"PBKDF2_SHA256_I10K"``
+Argon2id | With time=1, memory=64*1024 and threads=4 | ``"ARGON2ID_T1_M65536_C4"``
+scrypt | With N=32768, r=8 and p=1 | ``"SCRYPT_N32768_R8_P1"``
 
-* Random 8 bytes ``"R8B"``
-* Random 16 bytes ``"R16B"``
+#### Salts:
 
-Encodings:
+Name | Notes | Value (``SALT``)
+--- | --- | ---
+Random 8 bytes | n/a | ``"R8B"``
+Random 16 bytes | n/a | ``"R16B"``
+Random 24 bytes | n/a | ``"R24B"``
+Random 32 bytes | n/a | ``"R32B"``
 
-* Hex ``"HEX"``
-* Base32 ``"BASE32"``
-* Base62 ``"BASE62"`` (Base64 without the special characters)
-* Base64 ``"BASE64"``
-* Base64 URL ``"BASE64URL"`` (Base64 URL safe variant)
+#### Encodings:
+
+Name | Notes | Value (``ENC``)
+--- | --- | ---
+Hex | ``[0-9A-F]`` Base16 | ``"HEX"``
+Base32 | ``[2-9A-Z]`` Base32, no ``0`` or ``1`` | ``"BASE32"``
+Base62 | ``[0-9A-Za-z]`` Base64 without the special characters | ``"BASE62"`` 
+Base64 | ``[0-9A-Za-z\+\/]`` Base64 standard | ``"BASE64"``
+Base64 URL | ``[0-9A-Za-z\-\_]`` Base64 URL safe variant: ``-``, ``_`` instead of ``+``, ``/`` | ``"BASE64URL"``
 
 ### Comparison
 
@@ -108,7 +142,7 @@ The combination of algorithms in use can be compared to other well-established t
         * If enabled PBKDF2 can be used, defaults use SHA-256 and 10000 iterations with a salt (8 bytes) to derive the key (32 bytes) and an IV (16 bytes)
     * differences: no authenticated encryption; selected cipher suite or version information is not included in the output
     * result structure, binary or all together Base64 encoded:
-        * a prefix: `Salted__`
+        * a prefix: ``Salted__``
         * the salt
         * the ciphertext
 * [Ansible Vault](https://docs.ansible.com/ansible/2.10/user_guide/vault.html#format-of-files-encrypted-with-ansible-vault) payload format 1.2:
@@ -117,7 +151,7 @@ The combination of algorithms in use can be compared to other well-established t
         * PBKDF2 with SHA-256 using 10000 iterations with a salt (32 bytes) to derive the AES key (32 bytes), HMAC key (32 bytes) and an IV (16 bytes)
     * differences: plaintext is padded to block size before encryption; separate HMAC is used as AES mode is CTR instead of GCM
     * result structure, separated by newlines:
-        * a header (e.g. `$ANSIBLE_VAULT;1.2;AES256;vault-id-label`)
+        * a header (e.g. ``$ANSIBLE_VAULT;1.2;AES256;vault-id-label``)
         * hex encoded salt
         * hex encoded HMAC of the ciphertext
         * hex encoded ciphertext (newlines after 80 characters)

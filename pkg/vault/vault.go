@@ -19,14 +19,9 @@ func Encrypt(cleartext string, password string, modeText string) (messageText st
 		return "", err
 	}
 
-	var salt []byte
-	switch mm.Salt {
-	case vaultmode.Salts.R8b:
-		salt = internal.NewSalt(internal.SaltLength8)
-	case vaultmode.Salts.R16b:
-		salt = internal.NewSalt(internal.SaltLength16)
-	default:
-		return "", errors.New("selected salt variant not implemented")
+	salt, err := newSalt(mm.Salt)
+	if err != nil {
+		return "", err
 	}
 
 	key, err := deriveKey(mm.Kdf, []byte(password), salt)
@@ -128,6 +123,23 @@ func Decrypt(messageText string, password string) (cleartext string, modeText st
 	}
 
 	return string(decrypted), mm.Text(), err
+}
+
+func newSalt(s vaultmode.Salt) ([]byte, error) {
+	var salt []byte
+	switch s {
+	case vaultmode.Salts.R8b:
+		salt = internal.NewSalt(internal.SaltLength8)
+	case vaultmode.Salts.R16b:
+		salt = internal.NewSalt(internal.SaltLength16)
+	case vaultmode.Salts.R24b:
+		salt = internal.NewSalt(internal.SaltLength24)
+	case vaultmode.Salts.R32b:
+		salt = internal.NewSalt(internal.SaltLength32)
+	default:
+		return nil, errors.New("selected salt variant not implemented")
+	}
+	return salt, nil
 }
 
 func deriveKey(kdf vaultmode.KeyDerivationFunction, pw []byte, salt []byte) (*internal.Key, error) {
