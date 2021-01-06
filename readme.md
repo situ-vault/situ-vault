@@ -136,6 +136,16 @@ Base62 | ``[0-9A-Za-z]`` Base64 without the special characters | ``"BASE62"``
 Base64 | ``[0-9A-Za-z\+\/]`` Base64 standard | ``"BASE64"``
 Base64 URL | ``[0-9A-Za-z\-\_]`` Base64 URL safe variant: ``-``, ``_`` instead of ``+``, ``/`` | ``"BASE64URL"``
 
+#### Linebreaks:
+
+Name | Notes | Value (``LB``)
+--- | --- | ---
+No linebreaks | n/a | ``"NO"``
+After 80 characters | n/a | ``"CH80"``
+After 100 characters | n/a | ``"CH100"``
+After 120 characters | n/a | ``"CH120"``
+
+
 ### Comparison
 
 The combination of algorithms in use can be compared to other well-established tools:
