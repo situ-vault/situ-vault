@@ -38,9 +38,9 @@ With flags: (not recommended)
 
 ```
 situ-vault encrypt -password=test-pw -cleartext=test-data
-SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2
+SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2##END
 
-situ-vault decrypt -password=test-pw -ciphertext="SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2"
+situ-vault decrypt -password=test-pw -ciphertext="SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2##END"
 test-data
 ```
 
@@ -62,8 +62,8 @@ Surrounding whitespace around ciphertexts is cleaned before parsing.
 The output of ``situ-vault`` is formatted as text, called a ``message`` or ``vaultmessage``:
 ```
 # whole vaultmessage: (encoding of salt and ciphertext depending on vaultmode)
-SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2
-<fix-version>##<vaultmode>##<salt>##<ciphertext>
+SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2##END
+<fix-version>##<vaultmode>##<salt>##<ciphertext>##<fix-end>
 
 # with vaultmode:
 ##<code>:<value>#<code>:<value>#<...>##
@@ -71,7 +71,7 @@ SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##IYKEB5WQ
 
 A text based format instead of a binary one was chosen to enable easy diffing for version control and simple copying.
 A self describing format enables decryption without further configuration by the user and allows the reuse of a mode for
-further ciphertexts.
+further ciphertexts. The clearly readable ``##END`` allows the user to see if a message was copied completely.
 
 The authentication tags are directly part of the ciphertext and not separated by ``##`` as this is the format most often
 used by the crypto libraries. However, the nonces are not stored as a prefix of the ciphertext, as these are taken from

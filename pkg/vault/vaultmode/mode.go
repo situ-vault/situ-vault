@@ -8,7 +8,7 @@ import (
 )
 
 // examples: (the vaultmode is only the part following after "SITU_VAULT_V1##" until the next "##")
-// "SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##TNSIVLVV6EOGI===##GRDENILPW24R4YDA2I6MKT6JPLG5GM2HWC5S2PR7"
+// "SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##TNSIVLVV6EOGI===##GRDENILPW24R4YDA2I6MKT6JPLG5GM2HWC5S2PR7##END"
 
 const (
 	code           string = `code` // field tag used to get the type prefix for the text representation from the struct
