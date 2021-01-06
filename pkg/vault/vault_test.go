@@ -9,10 +9,22 @@ import (
 	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
 )
 
-func Test_roundTrip(t *testing.T) {
+func Test_roundTrip_Conservative(t *testing.T) {
+	testRound(t, vaultmode.Defaults().Conservative.Text())
+}
+func Test_roundTrip_Modern(t *testing.T) {
+	testRound(t, vaultmode.Defaults().Modern.Text())
+}
+func Test_roundTrip_Secretbox(t *testing.T) {
+	testRound(t, vaultmode.Defaults().Secretbox.Text())
+}
+func Test_roundTrip_XChaCha(t *testing.T) {
+	testRound(t, vaultmode.Defaults().XChaCha.Text())
+}
+
+func testRound(t *testing.T, modeText string) {
 	password := string(testdata.RandomPassword(16))
 	cleartext := string(testdata.RandomDataBase64(500))
-	modeText := vaultmode.Defaults().Conservative.Text()
 
 	resultEncrypted, err := Encrypt(cleartext, password, modeText)
 	assert.Nil(t, err)

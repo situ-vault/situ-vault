@@ -64,7 +64,12 @@ func Encrypt(cleartext string, password string, modeText string) (messageText st
 		return "", errors.New("selected encoding not implemented")
 	}
 
-	m := vaultmessage.New(*mm, encodedSalt, encodedCiphertext)
+	wrappedCiphertext, err := wrapText(mm.Linebreak, encodedCiphertext)
+	if err != nil {
+		return "", err
+	}
+
+	m := vaultmessage.New(*mm, encodedSalt, wrappedCiphertext)
 	messageText = m.Text()
 	return messageText, err
 }
@@ -82,24 +87,31 @@ func Decrypt(messageText string, password string) (cleartext string, modeText st
 	}
 	mm := message.Mode
 
+	var unwrappedCiphertext string
+	if mm.Linebreak != vaultmode.Linebreaks.No {
+		unwrappedCiphertext = internal.Unwrap(message.Ciphertext)
+	} else {
+		unwrappedCiphertext = message.Ciphertext
+	}
+
 	var decodedSalt []byte
 	var decodedCiphertext []byte
 	switch mm.Encoding {
 	case vaultmode.Encodings.Hex:
 		decodedSalt, err = internal.DecodeHex(message.Salt)
-		decodedCiphertext, err = internal.DecodeHex(message.Ciphertext)
+		decodedCiphertext, err = internal.DecodeHex(unwrappedCiphertext)
 	case vaultmode.Encodings.Base32:
 		decodedSalt, err = internal.DecodeBase32(message.Salt)
-		decodedCiphertext, err = internal.DecodeBase32(message.Ciphertext)
+		decodedCiphertext, err = internal.DecodeBase32(unwrappedCiphertext)
 	case vaultmode.Encodings.Base62:
 		decodedSalt, err = internal.DecodeBase62(message.Salt)
-		decodedCiphertext, err = internal.DecodeBase62(message.Ciphertext)
+		decodedCiphertext, err = internal.DecodeBase62(unwrappedCiphertext)
 	case vaultmode.Encodings.Base64:
 		decodedSalt, err = internal.DecodeBase64(message.Salt)
-		decodedCiphertext, err = internal.DecodeBase64(message.Ciphertext)
+		decodedCiphertext, err = internal.DecodeBase64(unwrappedCiphertext)
 	case vaultmode.Encodings.Base64url:
 		decodedSalt, err = internal.DecodeBase64Url(message.Salt)
-		decodedCiphertext, err = internal.DecodeBase64Url(message.Ciphertext)
+		decodedCiphertext, err = internal.DecodeBase64Url(unwrappedCiphertext)
 	}
 	if err != nil {
 		return "", "", err
@@ -155,4 +167,19 @@ func deriveKey(kdf vaultmode.KeyDerivationFunction, pw []byte, salt []byte) (*in
 		return nil, errors.New("selected key derivation function not implemented")
 	}
 	return key, nil
+}
+
+func wrapText(linebreak vaultmode.Linebreak, s string) (string, error) {
+	switch linebreak {
+	case vaultmode.Linebreaks.No:
+		return s, nil
+	case vaultmode.Linebreaks.Ch80:
+		return internal.Wrap(s, 80), nil
+	case vaultmode.Linebreaks.Ch100:
+		return internal.Wrap(s, 100), nil
+	case vaultmode.Linebreaks.Ch120:
+		return internal.Wrap(s, 120), nil
+	default:
+		return "", errors.New("selected line breaking not implemented")
+	}
 }

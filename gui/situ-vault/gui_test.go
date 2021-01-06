@@ -57,6 +57,6 @@ func Test_customMode(t *testing.T) {
 
 	newOption := ui.modes.Options[lengthAfter-1]
 	split := strings.Split(newOption, "#")
-	lastPart := split[len(split)-1]
+	lastPart := split[len(split)-2]
 	assert.Equal(t, lastPart, "ENC:BASE64")
 }

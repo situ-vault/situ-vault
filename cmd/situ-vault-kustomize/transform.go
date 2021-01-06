@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"encoding/base64"
 	"io/ioutil"
 	"os"
-	"regexp"
 
 	"gopkg.in/yaml.v3"
 
@@ -38,29 +36,27 @@ func transformFile(wd string, filePath string, password string) {
 	if err != nil {
 		logStderr.Fatalf("Error unmarshalling manifest: %q \n%s\n", err, content)
 	}
-	transformed := content
-	for _, value := range secretManifest.Data {
+	for key, value := range secretManifest.Data {
 		cleartext, _, err := vault.Decrypt(value, password)
 		if err != nil {
 			logStderr.Fatalf("Decryption failed: %q \n%s\n", err, value)
 		}
 		encoded := base64.StdEncoding.EncodeToString([]byte(cleartext))
-		transformed = bytes.Replace(transformed, []byte(value), []byte(encoded), 1)
+		secretManifest.Data[key] = encoded
 	}
-	// clear empty lines:
-	clean := cleanManifest(string(transformed))
-	logStdout.Println(clean)
+	transformed, err := yaml.Marshal(secretManifest)
+	if err != nil {
+		logStderr.Fatalf("Error marshalling transformed manifest: %q \n%s\n", err, content)
+	}
+	logStdout.Println(string(transformed))
 	logStdout.Println("---")
 }
 
-func cleanManifest(manifest string) string {
-	emptyLine := regexp.MustCompile(`(?m)\n\n`)
-	s := emptyLine.ReplaceAllString(manifest, "\n")
-	commentLine := regexp.MustCompile(`(?m)^# .*\n`)
-	return commentLine.ReplaceAllString(s, "")
-}
-
 type SecretManifest struct {
-	Kind string            `json:"kind" yaml:"kind"`
-	Data map[string]string `json:"data" yaml:"data"`
+	ApiVersion string            `json:"apiVersion" yaml:"apiVersion,omitempty"`
+	Kind       string            `json:"kind" yaml:"kind,omitempty"`
+	Metadata   map[string]string `json:"metadata" yaml:"metadata,omitempty"`
+	Type       string            `json:"type" yaml:"type,omitempty"`
+	StringData map[string]string `json:"stringData" yaml:"stringData,omitempty"`
+	Data       map[string]string `json:"data" yaml:"data,omitempty"`
 }

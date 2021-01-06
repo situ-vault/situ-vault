@@ -8,7 +8,7 @@ import (
 )
 
 // examples: (the vaultmode is only the part following after "SITU_VAULT_V1##" until the next "##")
-// "SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##TNSIVLVV6EOGI===##GRDENILPW24R4YDA2I6MKT6JPLG5GM2HWC5S2PR7##END"
+// "SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32#LB:NO##TNSIVLVV6EOGI===##GRDENILPW24R4YDA2I6MKT6JPLG5GM2HWC5S2PR7##END"
 
 const (
 	code           string = `code` // field tag used to get the type prefix for the text representation from the struct
@@ -21,6 +21,7 @@ type Mode struct {
 	Kdf       KeyDerivationFunction `code:"KDF"`
 	Salt      Salt                  `code:"SALT"`
 	Encoding  Encoding              `code:"ENC"`
+	Linebreak Linebreak             `code:"LB"`
 }
 
 func (m Mode) Text() string {
@@ -47,6 +48,7 @@ func NewMode(text string) (*Mode, error) {
 		Kdf:       "",
 		Salt:      "",
 		Encoding:  "",
+		Linebreak: "",
 	}
 	v := reflect.Indirect(reflect.ValueOf(m))
 	if len(split) != v.NumField() {
@@ -87,6 +89,8 @@ func validateModeField(code string, value string) (err error) {
 		_, err = ParseSalt(value)
 	case "ENC":
 		_, err = ParseEncoding(value)
+	case "LB":
+		_, err = ParseLinebreak(value)
 	}
 	return err
 }

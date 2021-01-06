@@ -15,7 +15,7 @@ func Test_message(t *testing.T) {
 	m := New(vaultmode.Defaults().Conservative, salt, ciphertext)
 
 	messageText := m.Text()
-	assert.EqualValues(t, "SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##salt##ciphertext##END", messageText)
+	assert.EqualValues(t, "SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32#LB:NO##salt##ciphertext##END", messageText)
 
 	openedMessage, err := NewMessage(messageText)
 	assert.Nil(t, err)

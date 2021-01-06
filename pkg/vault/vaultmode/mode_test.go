@@ -7,10 +7,10 @@ import (
 )
 
 var defaultMode = Defaults().Conservative
-var defaultModeText = "C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32"
+var defaultModeText = "C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32#LB:NO"
 
 var secretboxMode = Defaults().Secretbox
-var secretboxModeText = "C:NACL_SECRETBOX#KDF:SCRYPT_N32768_R8_P1#SALT:R16B#ENC:BASE64"
+var secretboxModeText = "C:NACL_SECRETBOX#KDF:SCRYPT_N32768_R8_P1#SALT:R16B#ENC:BASE64#LB:NO"
 
 func Test_ModeText(t *testing.T) {
 	text := defaultMode.Text()
@@ -23,12 +23,14 @@ func Test_ModeText2(t *testing.T) {
 }
 
 func Test_TextMode(t *testing.T) {
-	m, _ := NewMode(defaultModeText)
+	m, err := NewMode(defaultModeText)
+	assert.Nil(t, err)
 	assert.Equal(t, &defaultMode, m)
 }
 
 func Test_TextMode2(t *testing.T) {
-	m, _ := NewMode(secretboxModeText)
+	m, err := NewMode(secretboxModeText)
+	assert.Nil(t, err)
 	assert.Equal(t, &secretboxMode, m)
 }
 

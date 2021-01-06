@@ -38,9 +38,9 @@ With flags: (not recommended)
 
 ```
 situ-vault encrypt -password=test-pw -cleartext=test-data
-SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2##END
+SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32#LB:NO##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2##END
 
-situ-vault decrypt -password=test-pw -ciphertext="SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2##END"
+situ-vault decrypt -password=test-pw -ciphertext="SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32#LB:NO##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2##END"
 test-data
 ```
 
@@ -57,12 +57,17 @@ some inputs!
 
 Surrounding whitespace around ciphertexts is cleaned before parsing.
 
+### Kustomize
+
+For the moment, this is documented in the specific readme: [readme.md](./cmd/situ-vault-kustomize/testdata/readme.md)
+
 ## Format
 
 The output of ``situ-vault`` is formatted as text, called a ``message`` or ``vaultmessage``:
+
 ```
 # whole vaultmessage: (encoding of salt and ciphertext depending on vaultmode)
-SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2##END
+SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32#LB:NO##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2##END
 <fix-version>##<vaultmode>##<salt>##<ciphertext>##<fix-end>
 
 # with vaultmode:

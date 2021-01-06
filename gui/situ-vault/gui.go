@@ -248,7 +248,7 @@ func (exp *experience) loadUi(application fyne.App) {
 
 	w := application.NewWindow("situ-vault")
 	w.SetFixedSize(true)
-	w.Resize(fyne.NewSize(800, 900))
+	w.Resize(fyne.NewSize(1000, 900))
 
 	showError := func(err error) {
 		dialog.ShowError(err, w)

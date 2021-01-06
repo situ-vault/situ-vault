@@ -17,7 +17,7 @@ func main() {
 	logStdout.Print(result) // careful this adds a newline at the end!
 }
 
-var defaultModeText string = vaultmode.Defaults().Conservative.Text()
+var defaultModeText = vaultmode.Defaults().Conservative.Text()
 
 func handleCommand(args []string) string {
 	encryptCmd := flag.NewFlagSet("encrypt", flag.ExitOnError)
