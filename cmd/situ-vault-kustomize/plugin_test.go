@@ -31,6 +31,26 @@ func Test_main(t *testing.T) {
 	assert.True(t, strings.HasPrefix(output, expected))
 }
 
+func Test_getPasswordEnv(t *testing.T) {
+	oldArgs := os.Args
+	defer func() { os.Args = oldArgs }()
+	_ = os.Setenv("SITU_VAULT_PASSWORD_VAR", "test-pw")
+	pwc := PasswordConfig{
+		Env: "SITU_VAULT_PASSWORD_VAR",
+	}
+	password := getPassword(pwc)
+	assert.Equal(t, "test-pw", password)
+}
+
+func Test_getPasswordFile(t *testing.T) {
+	pwc := PasswordConfig{
+		Env:  "UNDEFINED_VAR_NAME", // env var not actually present, should fallback to file
+		File: "file://./test.key",
+	}
+	password := getPassword(pwc)
+	assert.Equal(t, "file://./test.key", password)
+}
+
 // Helpers:
 
 func b64(s string) string {

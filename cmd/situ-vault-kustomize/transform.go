@@ -4,18 +4,40 @@ import (
 	"encoding/base64"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 
 	"github.com/polarctos/situ-vault/pkg/vault"
 )
 
-func transform(manifest *Manifest, wd string) {
-	envName := manifest.Config.Password.Env
-	password, found := os.LookupEnv(envName)
-	if !found {
-		logStderr.Fatal("Failed to get password from environment: ", envName)
+func getPassword(passwordConfig PasswordConfig) string {
+	var password string
+	envName := passwordConfig.Env
+	fileName := passwordConfig.File
+	var found bool
+	if envName != "" {
+		password, found = os.LookupEnv(envName)
+		if !found && fileName == "" {
+			logStderr.Fatal("Failed to get password from environment: ", envName)
+		}
 	}
+	if !found && fileName != "" {
+		if strings.HasPrefix(fileName, "file:/") {
+			password = fileName
+			found = true
+		} else {
+			logStderr.Fatal("Password from file has to start with 'file:/'", envName)
+		}
+	}
+	if !found {
+		logStderr.Fatal("No password source defined")
+	}
+	return password
+}
+
+func transform(manifest *Manifest, wd string) {
+	password := getPassword(manifest.Config.Password)
 	for _, filePath := range manifest.Files {
 		transformFile(wd, filePath, password)
 	}
