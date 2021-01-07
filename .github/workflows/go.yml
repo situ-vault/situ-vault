@@ -34,7 +34,7 @@ jobs:
       - name: Install fyne dependency packages
         if: ${{ matrix.module == 'gui' }}
         run: >
-          sudo apt-get install -y -qq &&
+          sudo apt-get update -y -qq &&
           sudo apt-get install -y -qq
           libgl1-mesa-dev
           libegl1-mesa-dev
