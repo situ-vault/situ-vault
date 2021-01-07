@@ -158,11 +158,13 @@ func deriveKey(kdf vaultmode.KeyDerivationFunction, pw []byte, salt []byte) (*in
 	var key *internal.Key
 	switch kdf {
 	case vaultmode.KeyDerivationFunctions.Pbkdf2_sha256_i10k:
-		key = internal.DeriveKey(pw, salt)
+		key = internal.DeriveKeyPbkdf(pw, salt)
 	case vaultmode.KeyDerivationFunctions.Argon2id_t1_m65536_c4:
 		key = internal.DeriveKeyArgon2id(pw, salt)
 	case vaultmode.KeyDerivationFunctions.Scrypt_n32768_r8_p1:
 		key = internal.DeriveKeyScrypt(pw, salt)
+	case vaultmode.KeyDerivationFunctions.Hkdf_sha256_noinfo:
+		key = internal.DeriveKeyHkdf(pw, salt)
 	default:
 		return nil, errors.New("selected key derivation function not implemented")
 	}

@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 
 	"golang.org/x/crypto/argon2"
+	"golang.org/x/crypto/hkdf"
 	"golang.org/x/crypto/pbkdf2"
 	"golang.org/x/crypto/scrypt"
 )
@@ -19,7 +20,7 @@ type Key struct {
 }
 
 // derive key using PBKDF2 with SHA-256
-func DeriveKey(password []byte, salt []byte) *Key {
+func DeriveKeyPbkdf(password []byte, salt []byte) *Key {
 	// reasonable defaults used by OpenSSL
 	var hash = sha256.New
 	var iterations = 10000
@@ -43,6 +44,20 @@ func DeriveKeyScrypt(password []byte, salt []byte) *Key {
 	var p = 1
 	kdfResult, err := scrypt.Key(password, salt, N, r, p, keyLength+ivLength)
 	if err != nil {
+		panic(err)
+	}
+	return splitKdfResult(kdfResult)
+}
+
+// derive key using HKDF with SHA-256
+func DeriveKeyHkdf(password []byte, salt []byte) *Key {
+	var hash = sha256.New
+	var info []byte = nil // optional, not used
+	hkdf := hkdf.New(hash, password, salt, info)
+	length := keyLength + ivLength
+	kdfResult := make([]byte, length)
+	read, err := hkdf.Read(kdfResult)
+	if err != nil || read != length {
 		panic(err)
 	}
 	return splitKdfResult(kdfResult)

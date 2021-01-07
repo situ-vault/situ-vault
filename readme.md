@@ -10,14 +10,14 @@ This repository contains tools to locally encrypt and decrypt secrets stored in 
     * 🔐 **Salted key derivation** from a user supplied password (PBKDF2, Argon2id or Scrypt)
     * ✅ **Authenticated encryption** with state-of-the-art ciphers (AES-256-GCM, NaCl Secretbox or XChaCha20-Poly1305)
 * Slim text based output:
-    * 🔣 Various encodings that enable **easy copy 'n' paste** like Base32 or Base62 (but also the ubiquitous Base64)
-    * 📦 Selected suite of ciphers stored as a prefix to the ciphertext to allow easy decryption without further configuration
+    * 🔣 Various encodings that enable **easy copy 'n' paste** like Base32 or Base62 (but also Base64)
+    * 📦 Selected cipher suite stored as a prefix to the ciphertext to allow decryption without further configuration
 * Two user interfaces:
-    * ⌨️ CLI: Simplistic **command line interface**, reads from files or flags and outputs to stdout
+    * ⌨️ CLI: Simplistic **command line interface**, reads from files or flags and writes to stdout
     * 🖱️ GUI: Cross-platform **graphical user interface** built with ``fyne.io``
 * Application interfaces:
     * 🐵 Concise Go pkg
-    * 📃 Text based output and **only standard algorithms** allow straightforward implementation with other languages and tools
+    * 📃 Text based output and **only standard algorithms** allow straightforward implementation with other languages
 * Cloud native tools integration:
     * ⛅ Usage of encrypted secrets via a **kustomize exec plugin** to safely store encrypted secrets in a repository but directly use them for Kubernetes application deployments
 
@@ -52,7 +52,15 @@ situ-vault encrypt -password="file://./pw.txt" -cleartext="file://./data.txt" > 
 situ-vault decrypt -password="file://./pw.txt" -ciphertext="file://./data.enc.txt" > ./data.dec.txt
 ```
 
-This direction to a file currently adds a newline after the end of the decrypted content, which might be a problem for
+Specify a custom vault mode:
+
+```
+situ-vault encrypt -password=test-pw -cleartext=test-data -vaultmode="C:XCHACHA20_POLY1305#KDF:ARGON2ID_T1_M65536_C4#SALT:R32B#ENC:BASE62#LB:CH80"
+SITU_VAULT_V1##C:XCHACHA20_POLY1305#KDF:ARGON2ID_T1_M65536_C4#SALT:R32B#ENC:BASE62#LB:CH80##lsDfYPcXuqspleYN0yYMw1EJu6mFfYMyP4X1L0HpZRf##
+4YVoCE4cXfMxQasx7UsqnIOA6DtsOJswSk##END
+```
+
+The direction to a file currently adds a newline after the end of the decrypted content, which might be a problem for
 some inputs!
 
 Surrounding whitespace around ciphertexts is cleaned before parsing.
@@ -99,7 +107,9 @@ However, choice also enables the user to comply to existing requirements or ease
 become necessary. Thus, in ``situ-vault`` the user is able to build a cipher suite, called ``mode`` or ``vaultmode``,
 based on preferences, compliance requirements or tooling interoperability needs.
 
-At least at this point in time, all the provided options are seen as suitable variants.
+At least at this point in time, all the provided options are seen as suitable variants. The HKDF should only be used
+when the input password is already a strong secret key e.g. when taken from a random source. It is still included here
+as it offers a lightweight alternative in these specific cases.
 
 #### Constructs:
 
@@ -116,6 +126,7 @@ Name | Notes | Value (``KDF``)
 PBKDF2 | With SHA-256 and 10000 iterations | ``"PBKDF2_SHA256_I10K"``
 Argon2id | With time=1, memory=64*1024 and threads=4 | ``"ARGON2ID_T1_M65536_C4"``
 scrypt | With N=32768, r=8 and p=1 | ``"SCRYPT_N32768_R8_P1"``
+HKDF | With SHA-256 and no info value | ``"HKDF_SHA256_NOINFO"``
 
 #### Salts:
 
