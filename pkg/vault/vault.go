@@ -3,9 +3,9 @@ package vault
 import (
 	"errors"
 
-	"github.com/polarctos/situ-vault/pkg/internal"
-	"github.com/polarctos/situ-vault/pkg/vault/vaultmessage"
-	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
+	"github.com/situ-vault/situ-vault/pkg/internal"
+	"github.com/situ-vault/situ-vault/pkg/vault/vaultmessage"
+	"github.com/situ-vault/situ-vault/pkg/vault/vaultmode"
 )
 
 func Encrypt(cleartext string, password string, modeText string) (messageText string, err error) {

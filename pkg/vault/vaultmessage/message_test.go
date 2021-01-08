@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
+	"github.com/situ-vault/situ-vault/pkg/vault/vaultmode"
 )
 
 func Test_message(t *testing.T) {

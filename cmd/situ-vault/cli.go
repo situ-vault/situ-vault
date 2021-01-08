@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/polarctos/situ-vault/pkg/vault"
-	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
+	"github.com/situ-vault/situ-vault/pkg/vault"
+	"github.com/situ-vault/situ-vault/pkg/vault/vaultmode"
 )
 
 var logStdout = log.New(os.Stdout, "", 0)

@@ -11,8 +11,8 @@ import (
 	"fyne.io/fyne/widget"
 	"image/color"
 
-	"github.com/polarctos/situ-vault/pkg/vault"
-	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
+	"github.com/situ-vault/situ-vault/pkg/vault"
+	"github.com/situ-vault/situ-vault/pkg/vault/vaultmode"
 )
 
 type operation string

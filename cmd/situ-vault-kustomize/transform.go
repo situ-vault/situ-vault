@@ -8,7 +8,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/polarctos/situ-vault/pkg/vault"
+	"github.com/situ-vault/situ-vault/pkg/vault"
 )
 
 func getPassword(passwordConfig PasswordConfig) string {

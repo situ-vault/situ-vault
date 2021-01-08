@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
+	"github.com/situ-vault/situ-vault/pkg/vault/vaultmode"
 )
 
 const (

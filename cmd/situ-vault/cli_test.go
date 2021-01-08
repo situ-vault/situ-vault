@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/polarctos/situ-vault/pkg/testdata"
-	"github.com/polarctos/situ-vault/pkg/vault/vaultmode"
+	"github.com/situ-vault/situ-vault/pkg/testdata"
+	"github.com/situ-vault/situ-vault/pkg/vault/vaultmode"
 )
 
 var regexVaultMessage = regexp.MustCompile(`(?m)^(SITU_VAULT_V1)##([A-Z]+:.+#.+:.+)##(.+)$`)

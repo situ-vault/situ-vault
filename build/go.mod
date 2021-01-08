@@ -1,4 +1,4 @@
-module github.com/polarctos/situ-vault/build
+module github.com/situ-vault/situ-vault/build
 
 go 1.16
 

@@ -1,4 +1,4 @@
-module github.com/polarctos/situ-vault/pkg
+module github.com/situ-vault/situ-vault/pkg
 
 go 1.16
 
