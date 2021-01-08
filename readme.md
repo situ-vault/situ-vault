@@ -111,6 +111,9 @@ At least at this point in time, all the provided options are seen as suitable va
 when the input password is already a strong secret key e.g. when taken from a random source. It is still included here
 as it offers a lightweight alternative in these specific cases.
 
+Currently, the mode and other metadata are not authenticated, only the actual input cleartext is authenticated.
+The ``vaultmode`` text might be added as additional data (where an AEAD is used) in subsequent versions of situ-vault.
+
 #### Constructs:
 
 Name | Notes | Value (``C``)

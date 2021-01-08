@@ -23,6 +23,8 @@ type PasswordConfig struct {
 var logStdout = log.New(os.Stdout, "", 0)
 var logStderr = log.New(os.Stderr, "", 0)
 
+// kustomize exec plugin
+// https://github.com/kubernetes-sigs/kustomize/blob/master/api/internal/plugins/execplugin/execplugin.go
 func main() {
 	if len(os.Args) < 2 {
 		logStderr.Fatal("Wrong number of arguments:", os.Args)

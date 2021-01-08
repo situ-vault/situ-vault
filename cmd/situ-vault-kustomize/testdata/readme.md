@@ -1,15 +1,23 @@
 # situ-vault kustomize exec plugin
 
-## Build:
+Relevant documentation:
 
-Build and place executable into a conforming *kustomize* exec plugin directory:
+Kustomize plugins guide: [Extending Kustomize](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/)
+
+Kustomize exec plugin folder structure: [Exec plugin example](https://kubectl.docs.kubernetes.io/guides/extending_kustomize/execpluginguidedexample/#make-a-home-for-plugins)
+
+# Usage
+
+## Setup plugin:
+
+Download or build executable and place it into a conforming *kustomize* exec plugin directory:
 
 ```
 cd situ-vault-kustomize
 go build -o testdata/kustomize/plugin/situ-vault/v1/secretgenerator/SecretGenerator .
 ```
 
-## Run locally:
+## Run kustomization:
 
 Configure *kustomize* plugin directory:
 
@@ -38,7 +46,9 @@ kubectl get all
 
 Service should be running at, e.g: [http://localhost:8666/]
 
-# Ingress TLS setup
+# Development
+
+## Ingress TLS setup
 
 Create nginx ingress controller for a local setup:
 
