@@ -68,10 +68,12 @@ type ui struct {
 	outputCopy     func()
 	outputFile     func()
 	clearClipboard func()
+	refreshObjects []interface{ fyne.CanvasObject }
 }
 
 func newUi(w fyne.Window, model *model, action func(), refresh func(), showError func(error), getClipboard func() fyne.Clipboard) *ui {
 	u := &ui{}
+	u.refreshObjects = make([]interface{ fyne.CanvasObject }, 0, 2)
 	u.password = widget.NewPasswordEntry()
 	u.input = widget.NewMultiLineEntry()
 	u.input.Wrapping = fyne.TextWrapBreak
@@ -99,6 +101,9 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), showError
 		u.modes.Selected = model.mode
 		u.output.Text = model.output
 		refresh()
+		for _, refreshable := range u.refreshObjects {
+			refreshable.Refresh()
+		}
 	}
 
 	u.action = func() {
@@ -311,7 +316,7 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 				),
 			)},
 			{Text: inputName + ":", Widget: container.NewVBox(
-				ui.input,
+				scrollableMultilineEntry(ui.input, ui),
 				widget.NewToolbar(
 					NewToolbarLabeledAction(theme.ContentPasteIcon(), "Paste", ui.inputPaste),
 					NewToolbarLabeledAction(theme.FolderOpenIcon(), "File", ui.inputFile),
@@ -330,7 +335,12 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 	)
 	result := &widget.Form{
 		Items: []*widget.FormItem{
-			{Text: string(op) + "ed:", Widget: container.NewVBox(ui.output, toolbar)},
+			{
+				Text: string(op) + "ed:",
+				Widget: container.NewVBox(
+					scrollableMultilineEntry(ui.output, ui),
+					toolbar,
+				)},
 		},
 		OnCancel:   ui.clearClipboard,
 		CancelText: "Clear Clipboard",
@@ -359,4 +369,12 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 		space,
 		result,
 	)
+}
+
+func scrollableMultilineEntry(e *widget.Entry, u *ui) fyne.CanvasObject {
+	scrollable := container.NewVScroll(e)
+	scrollable.SetMinSize(e.MinSize().Add(fyne.NewSize(0, 50)))
+	// workaround as fyne does not recursively refresh the contents of Scrolls:
+	u.refreshObjects = append(u.refreshObjects, e)
+	return scrollable
 }
