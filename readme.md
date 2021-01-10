@@ -65,6 +65,16 @@ some inputs!
 
 Surrounding whitespace around ciphertexts is cleaned before parsing.
 
+### GUI
+
+#### Encrypt
+
+<img alt="Encrypt GUI situ-vault" height="500px" src="https://raw.githubusercontent.com/situ-vault/situ-vault/main/doc/screens/encrypt.png">
+
+#### Decrypt
+
+<img alt="Decrypt GUI situ-vault" height="500px" src="https://raw.githubusercontent.com/situ-vault/situ-vault/main/doc/screens/decrypt.png">
+
 ### Kustomize
 
 For the moment, this is documented in the specific readme: [readme.md](./cmd/situ-vault-kustomize/testdata/readme.md)
