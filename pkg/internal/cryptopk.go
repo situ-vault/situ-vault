@@ -9,6 +9,8 @@ import (
 	"golang.org/x/crypto/nacl/box"
 )
 
+// Public key based encryption is currently work in progress and not yet exposed!
+
 type BoxKeyPair struct {
 	PrivateKey [32]byte
 	PublicKey  [32]byte
