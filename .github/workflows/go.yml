@@ -81,14 +81,15 @@ jobs:
         working-directory: cmd
         # needed to keep the executable flag
         run: |
-          tar cfvz "dist/situ-vault.tar.gz" "dist/bin/"
+          tar -v -c -z -C "dist/bin" -f "dist/$RESULT_TAR_NAME" "."
+        env:
+          RESULT_TAR_NAME: ${{ format('situ-vault-cli-{0}-{1}.tar.gz', matrix.os, matrix.arch) }}
 
       - name: Upload CLI dist
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ format('dist-cli-{0}-{1}', matrix.os, matrix.arch) }}
-          path: |
-            cmd/dist/*.tar.gz
+          name: ${{ format('situ-vault-cli-{0}-{1}', matrix.os, matrix.arch) }}
+          path: ${{ format('cmd/dist/situ-vault-cli-{0}-{1}.tar.gz', matrix.os, matrix.arch) }}
           retention-days: 1
 
 
@@ -139,7 +140,7 @@ jobs:
         if: ${{ matrix.os == 'darwin' }}
         run: |
           DIST_FOLDER="fyne-cross/dist/$MATRIX_OS-$MATRIX_ARCH"
-          tar cfvz "$DIST_FOLDER/situ-vault.app.tar.gz" "$DIST_FOLDER/situ-vault.app"
+          tar -v -c -z -C "$DIST_FOLDER" -f "$DIST_FOLDER/situ-vault.app.tar.gz" "situ-vault.app"
         env:
           MATRIX_OS: ${{ matrix.os }}
           MATRIX_ARCH: ${{ matrix.arch }}
@@ -147,8 +148,9 @@ jobs:
       - name: Upload GUI dist
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ format('dist-gui-{0}-{1}', matrix.os, matrix.arch) }}
+          name: ${{ format('situ-vault-gui-{0}-{1}', matrix.os, matrix.arch) }}
           path: |
-            gui/fyne-cross/dist/*/*.tar.gz
-            gui/fyne-cross/dist/*/*.zip
+            ${{ format('gui/fyne-cross/dist/{0}-{1}/situ-vault.app.tar.gz', matrix.os, matrix.arch) }}
+            ${{ format('gui/fyne-cross/dist/{0}-{1}/situ-vault.tar.gz', matrix.os, matrix.arch) }}
+            ${{ format('gui/fyne-cross/dist/{0}-{1}/situ-vault.zip', matrix.os, matrix.arch) }}
           retention-days: 1
