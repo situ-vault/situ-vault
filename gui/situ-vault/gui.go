@@ -10,6 +10,7 @@ import (
 	"fyne.io/fyne/theme"
 	"fyne.io/fyne/widget"
 	"image/color"
+	"time"
 
 	"github.com/situ-vault/situ-vault/pkg/vault"
 	"github.com/situ-vault/situ-vault/pkg/vault/vaultmode"
@@ -55,11 +56,12 @@ type ui struct {
 	passwordPaste  func()
 	passwordCopy   func()
 	passwordFile   func()
+	passwordNotify *ToolbarNotification
 	input          *widget.Entry
 	inputPaste     func()
 	inputFile      func()
 	modes          *widget.RadioGroup
-	modesAddCustom ToolbarLabeledItem
+	modesAddCustom *ToolbarLabeledAction
 	modesDialog    *customModesDialog
 	action         func()
 	clear          func()
@@ -67,7 +69,9 @@ type ui struct {
 	outputCut      func()
 	outputCopy     func()
 	outputFile     func()
+	outputNotify   *ToolbarNotification
 	clearClipboard func()
+	clearNotify    *ToolbarNotification
 	refreshObjects []interface{ fyne.CanvasObject }
 }
 
@@ -94,16 +98,19 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), showError
 		model.input = u.input.Text
 		model.mode = u.modes.Selected
 	}
+	refreshAll := func() {
+		refresh()
+		for _, refreshable := range u.refreshObjects {
+			refreshable.Refresh()
+		}
+	}
 	updateUiFromModel := func() {
 		u.password.Text = model.password
 		u.input.Text = model.input
 		syncModes()
 		u.modes.Selected = model.mode
 		u.output.Text = model.output
-		refresh()
-		for _, refreshable := range u.refreshObjects {
-			refreshable.Refresh()
-		}
+		refreshAll()
 	}
 
 	u.action = func() {
@@ -129,8 +136,10 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), showError
 		updateUiFromModel()
 
 	}
+	u.outputNotify = NewToolbarNotification()
 	u.outputCopy = func() {
 		getClipboard().SetContent(model.output)
+		u.outputNotify.ShowNotification("Copied to clipboard.", time.Second, refreshAll)
 	}
 	u.outputFile = func() {
 		if model.output == "" {
@@ -155,9 +164,11 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), showError
 		fileSaveDialog.Show()
 	}
 
+	u.passwordNotify = NewToolbarNotification()
 	u.passwordCopy = func() {
 		updateModelFromUi()
 		getClipboard().SetContent(model.password)
+		u.passwordNotify.ShowNotification("Password copied.", time.Second, refreshAll)
 	}
 	u.passwordPaste = func() {
 		updateModelFromUi()
@@ -186,8 +197,10 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), showError
 		})
 	}
 
+	u.clearNotify = NewToolbarNotification()
 	u.clearClipboard = func() {
 		getClipboard().SetContent("")
+		u.clearNotify.ShowNotification("Clipboard cleared.", time.Second, refreshAll)
 	}
 
 	u.modesAddCustom = NewToolbarLabeledAction(theme.ColorPaletteIcon(), "Add Custom Mode", func() {
@@ -313,6 +326,7 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 					NewToolbarLabeledAction(theme.ContentPasteIcon(), "Paste", ui.passwordPaste),
 					NewToolbarLabeledAction(theme.ContentCopyIcon(), "Copy", ui.passwordCopy),
 					NewToolbarLabeledAction(theme.FolderOpenIcon(), "File", ui.passwordFile),
+					ui.passwordNotify,
 				),
 			)},
 			{Text: inputName + ":", Widget: container.NewVBox(
@@ -332,6 +346,7 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 		NewToolbarLabeledAction(theme.ContentCutIcon(), "Cut", ui.outputCut),
 		NewToolbarLabeledAction(theme.ContentCopyIcon(), "Copy", ui.outputCopy),
 		NewToolbarLabeledAction(theme.FolderIcon(), "Save", ui.outputFile),
+		ui.outputNotify,
 	)
 	result := &widget.Form{
 		Items: []*widget.FormItem{
@@ -360,6 +375,8 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 	space := widget.NewLabel("")
 	separator := widget.NewSeparator()
 
+	clipboardNotifyBox := container.NewHBox(layout.NewSpacer(), ui.clearNotify.ToolbarObject())
+
 	return container.NewVBox(
 		space,
 		infoText,
@@ -368,6 +385,7 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 		separator,
 		space,
 		result,
+		clipboardNotifyBox,
 	)
 }
 
