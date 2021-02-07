@@ -4,8 +4,8 @@ go 1.16
 
 require (
 	github.com/situ-vault/situ-vault/pkg v0.0.0
-	github.com/stretchr/testify v1.6.1
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+	github.com/stretchr/testify v1.7.0
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 
 replace github.com/situ-vault/situ-vault/pkg v0.0.0 => ./../pkg
