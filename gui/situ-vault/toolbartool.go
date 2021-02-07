@@ -41,6 +41,7 @@ func (t ToolbarNotification) ToolbarObject() fyne.CanvasObject {
 }
 
 func (t ToolbarNotification) SetText(text string) {
+	t.label.TextStyle.Italic = true
 	t.label.SetText(text)
 }
 

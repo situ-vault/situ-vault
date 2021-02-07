@@ -71,6 +71,7 @@ type ui struct {
 	outputFile     func()
 	outputNotify   *ToolbarNotification
 	clearClipboard func()
+	clearNotify    *ToolbarNotification
 	refreshObjects []interface{ fyne.CanvasObject }
 }
 
@@ -196,8 +197,10 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), showError
 		})
 	}
 
+	u.clearNotify = NewToolbarNotification()
 	u.clearClipboard = func() {
 		getClipboard().SetContent("")
+		u.clearNotify.ShowNotification("Clipboard cleared.", time.Second, refreshAll)
 	}
 
 	u.modesAddCustom = NewToolbarLabeledAction(theme.ColorPaletteIcon(), "Add Custom Mode", func() {
@@ -372,6 +375,8 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 	space := widget.NewLabel("")
 	separator := widget.NewSeparator()
 
+	clipboardNotifyBox := container.NewHBox(layout.NewSpacer(), ui.clearNotify.ToolbarObject())
+
 	return container.NewVBox(
 		space,
 		infoText,
@@ -380,6 +385,7 @@ func uiTabDesign(ui *ui, op operation) *fyne.Container {
 		separator,
 		space,
 		result,
+		clipboardNotifyBox,
 	)
 }
 
