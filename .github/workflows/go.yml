@@ -58,6 +58,8 @@ jobs:
             arch: 'arm64'
           - os: 'linux'
             arch: '386'
+          - os: 'darwin'
+            arch: 'arm64'
     steps:
 
       - name: Set up Go
