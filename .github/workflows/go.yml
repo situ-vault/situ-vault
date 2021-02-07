@@ -108,6 +108,7 @@ jobs:
             arch: 'arm64'
           - os: 'linux'
             arch: '386'
+          # TODO add build for darwin/arm64 when supported in fyne-cross
 
     steps:
       - name: Set up Go
