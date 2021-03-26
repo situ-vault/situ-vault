@@ -5,7 +5,7 @@ on:
   pull_request:
 
 env:
-  GO_VERSION: '1.16.0-rc1'
+  GO_VERSION: '1.16.x'
 
 jobs:
 
@@ -108,6 +108,7 @@ jobs:
             arch: 'arm64'
           - os: 'linux'
             arch: '386'
+          # TODO add build for darwin/arm64 when supported in fyne-cross
 
     steps:
       - name: Set up Go

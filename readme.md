@@ -75,6 +75,12 @@ Surrounding whitespace around ciphertexts is cleaned before parsing.
 
 <img alt="Decrypt GUI situ-vault" max-height="500px" src="https://raw.githubusercontent.com/situ-vault/situ-vault/main/doc/screens/decrypt.png">
 
+#### Custom Mode
+
+The GUI also allows to select the algorithms and other parameters for a custom vault mode:
+
+<img alt="Encrypt GUI custom mode situ-vault" max-height="500px" src="https://raw.githubusercontent.com/situ-vault/situ-vault/main/doc/screens/mode.png">
+
 ### Kustomize
 
 For the moment, this is documented in the specific readme: [readme.md](./cmd/situ-vault-kustomize/testdata/readme.md)
