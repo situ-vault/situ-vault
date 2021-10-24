@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"errors"
+
 	"golang.org/x/crypto/chacha20poly1305"
 	"golang.org/x/crypto/nacl/secretbox"
 )
@@ -61,7 +62,7 @@ func DecryptSecretbox(data []byte, key *Key) ([]byte, error) {
 	decrypted, ok := secretbox.Open(out, data, &nonce, &secretKey)
 	var err error
 	if !ok {
-		err = errors.New("Failed to decrypt secretbox.")
+		err = errors.New("failed to decrypt secretbox")
 		return nil, err
 	}
 	return decrypted[1:], nil

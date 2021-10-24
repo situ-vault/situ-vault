@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/widget"
 	"time"
+
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/widget"
 )
 
 // Action with text label in the Toolbar:

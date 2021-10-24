@@ -1,15 +1,13 @@
 package main
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/app"
+	"fyne.io/fyne/v2/app"
 )
-
-var driver fyne.Driver
 
 func main() {
 	application := app.New()
-	driver = application.Driver()
+	application.Settings().SetTheme(&fyneTheme{})
+	_ = application.Driver()
 	exp := newExperience()
 	exp.loadUi(application)
 	application.Run()

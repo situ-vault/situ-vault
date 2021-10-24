@@ -4,9 +4,6 @@ on:
   push:
   pull_request:
 
-env:
-  GO_VERSION: '1.16.x'
-
 jobs:
 
   test:
@@ -14,15 +11,15 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        go: ['1.14.x', '1.15.x', 'common']
+        go: ['1.14.x', '1.15.x', '1.16.x', '1.17.x']
         module: [ 'pkg', 'cmd', 'gui' ]
     steps:
 
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: ${{ matrix.go != 'common' && matrix.go || env.GO_VERSION }}
-          stable: ${{ !contains(matrix.go, 'rc') && !(matrix.go == 'common' && contains(env.GO_VERSION, 'rc')) }}
+          go-version: ${{ matrix.go }}
+          stable: ${{ !contains(matrix.go, 'rc') }}
 
       - name: Check out code
         uses: actions/checkout@v2
@@ -44,118 +41,3 @@ jobs:
       - name: Test
         working-directory: ${{ matrix.module }}
         run: go test -v ./...
-
-
-  package-cli:
-    name: Package CLI
-    runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        os: [ 'linux', 'darwin', 'windows' ]
-        arch: [ 'amd64' ]
-        include:
-          - os: 'linux'
-            arch: 'arm64'
-          - os: 'linux'
-            arch: '386'
-          - os: 'darwin'
-            arch: 'arm64'
-    steps:
-
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          stable: ${{ !contains(env.GO_VERSION, 'rc') }}
-
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Go install
-        working-directory: cmd
-        run: |
-          mkdir -p dist/bin
-          env GOOS="$MATRIX_OS" GOARCH="$MATRIX_ARCH" go build -v -o dist/bin ./...
-        env:
-          MATRIX_OS: ${{ matrix.os }}
-          MATRIX_ARCH: ${{ matrix.arch }}
-
-      - name: Create tar for CLI
-        working-directory: cmd
-        # needed to keep the executable flag
-        run: |
-          tar -v -c -z -C "dist/bin" -f "dist/$RESULT_TAR_NAME" "."
-        env:
-          RESULT_TAR_NAME: ${{ format('situ-vault-cli-{0}-{1}.tar.gz', matrix.os, matrix.arch) }}
-
-      - name: Upload CLI dist
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ format('situ-vault-cli-{0}-{1}', matrix.os, matrix.arch) }}
-          path: ${{ format('cmd/dist/situ-vault-cli-{0}-{1}.tar.gz', matrix.os, matrix.arch) }}
-          retention-days: 1
-
-
-  package-gui:
-    name: Package GUI
-    runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        os: [ 'linux', 'darwin', 'windows' ]
-        arch: [ 'amd64' ]
-        include:
-          - os: 'linux'
-            arch: 'arm64'
-          - os: 'linux'
-            arch: '386'
-          # TODO add build for darwin/arm64 when supported in fyne-cross
-
-    steps:
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          stable: ${{ !contains(env.GO_VERSION, 'rc') }}
-
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Setup fyne-cross
-        working-directory: build
-        run: |
-          go mod download
-          go install github.com/fyne-io/fyne-cross
-
-      - name: Vendor dependencies for GUI
-        working-directory: gui
-        run: |
-          go mod vendor
-
-      - name: Build fyne GUI
-        working-directory: gui
-        run: |
-          fyne-cross "$MATRIX_OS" -arch="$MATRIX_ARCH" -output=situ-vault ./situ-vault
-        env:
-          MATRIX_OS: ${{ matrix.os }}
-          MATRIX_ARCH: ${{ matrix.arch }}
-
-      - name: Create tar for GUI
-        working-directory: gui
-        # only needed for macos to keep the executable flag
-        if: ${{ matrix.os == 'darwin' }}
-        run: |
-          DIST_FOLDER="fyne-cross/dist/$MATRIX_OS-$MATRIX_ARCH"
-          tar -v -c -z -C "$DIST_FOLDER" -f "$DIST_FOLDER/situ-vault.app.tar.gz" "situ-vault.app"
-        env:
-          MATRIX_OS: ${{ matrix.os }}
-          MATRIX_ARCH: ${{ matrix.arch }}
-
-      - name: Upload GUI dist
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ format('situ-vault-gui-{0}-{1}', matrix.os, matrix.arch) }}
-          path: |
-            ${{ format('gui/fyne-cross/dist/{0}-{1}/situ-vault.app.tar.gz', matrix.os, matrix.arch) }}
-            ${{ format('gui/fyne-cross/dist/{0}-{1}/situ-vault.tar.gz', matrix.os, matrix.arch) }}
-            ${{ format('gui/fyne-cross/dist/{0}-{1}/situ-vault.zip', matrix.os, matrix.arch) }}
-          retention-days: 1

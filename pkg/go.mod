@@ -1,9 +1,16 @@
 module github.com/situ-vault/situ-vault/pkg
 
-go 1.16
+go 1.17
 
 require (
 	github.com/nicksnyder/basen v1.0.0
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+)
+
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	golang.org/x/sys v0.0.0-20211023085530-d6a326fbbf70 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

@@ -5,12 +5,22 @@
 *.so
 *.dylib
 
+# GoLand
+.idea
+
+# macOS
+.DS_Store
+
 # Test binary, built with `go test -c`
 *.test
 
-# Cross compilation outputs
+# Compilation outputs
 */fyne-cross/*
 cmd/dist/*
+gui/dist/*
+gui/situ-vault.app*
+gui/situ-vault.tar.xz
+situ-vault.exe
 
 # Vendoring during packaging
 gui/vendor/

@@ -2,15 +2,16 @@ package main
 
 import (
 	"errors"
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/container"
-	"fyne.io/fyne/dialog"
-	"fyne.io/fyne/layout"
-	"fyne.io/fyne/theme"
-	"fyne.io/fyne/widget"
 	"image/color"
 	"time"
+
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 
 	"github.com/situ-vault/situ-vault/pkg/vault"
 	"github.com/situ-vault/situ-vault/pkg/vault/vaultmode"
@@ -298,7 +299,7 @@ func (exp *experience) loadUi(application fyne.App) {
 	// workaround to give it a bit more space to breathe
 	space := canvas.NewRectangle(color.White)
 	space.SetMinSize(fyne.NewSize(20, 20))
-	content := fyne.NewContainerWithLayout(
+	content := container.New(
 		layout.NewBorderLayout(space, space, space, space),
 		appTabs,
 	)

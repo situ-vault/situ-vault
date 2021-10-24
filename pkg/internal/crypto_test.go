@@ -20,7 +20,7 @@ func Test_aesgcm(t *testing.T) {
 	assert.Equal(t, cleartext, data)
 
 	wrongKey := DeriveKeyPbkdf([]byte("wrong-pw"), salt) // wrong pw, same salt
-	cleartext, err = DecryptAes(ciphertext, wrongKey)
+	_, err = DecryptAes(ciphertext, wrongKey)
 	assert.NotNil(t, err, "wrong password should not decrypt")
 }
 
@@ -36,7 +36,7 @@ func Test_secretbox(t *testing.T) {
 	assert.Equal(t, cleartext, data)
 
 	wrongKey := DeriveKeyPbkdf([]byte("wrong-pw"), salt) // wrong pw, same salt
-	cleartext, err = DecryptSecretbox(ciphertext, wrongKey)
+	_, err = DecryptSecretbox(ciphertext, wrongKey)
 	assert.NotNil(t, err, "wrong password should not decrypt")
 }
 
@@ -52,6 +52,6 @@ func Test_XChaCha20Poly1305(t *testing.T) {
 	assert.Equal(t, cleartext, data)
 
 	wrongKey := DeriveKeyPbkdf([]byte("wrong-pw"), salt) // wrong pw, same salt
-	cleartext, err = DecryptXChaPo(ciphertext, wrongKey)
+	_, err = DecryptXChaPo(ciphertext, wrongKey)
 	assert.NotNil(t, err, "wrong password should not decrypt")
 }

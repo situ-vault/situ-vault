@@ -41,6 +41,9 @@ func Encrypt(cleartext string, password string, modeText string) (messageText st
 	default:
 		return "", errors.New("selected construct not implemented")
 	}
+	if err != nil {
+		return "", err
+	}
 
 	var encodedSalt string
 	var encodedCiphertext string
@@ -96,24 +99,28 @@ func Decrypt(messageText string, password string) (cleartext string, modeText st
 
 	var decodedSalt []byte
 	var decodedCiphertext []byte
+	var errC error
 	switch mm.Encoding {
 	case vaultmode.Encodings.Hex:
 		decodedSalt, err = internal.DecodeHex(message.Salt)
-		decodedCiphertext, err = internal.DecodeHex(unwrappedCiphertext)
+		decodedCiphertext, errC = internal.DecodeHex(unwrappedCiphertext)
 	case vaultmode.Encodings.Base32:
 		decodedSalt, err = internal.DecodeBase32(message.Salt)
-		decodedCiphertext, err = internal.DecodeBase32(unwrappedCiphertext)
+		decodedCiphertext, errC = internal.DecodeBase32(unwrappedCiphertext)
 	case vaultmode.Encodings.Base62:
 		decodedSalt, err = internal.DecodeBase62(message.Salt)
-		decodedCiphertext, err = internal.DecodeBase62(unwrappedCiphertext)
+		decodedCiphertext, errC = internal.DecodeBase62(unwrappedCiphertext)
 	case vaultmode.Encodings.Base64:
 		decodedSalt, err = internal.DecodeBase64(message.Salt)
-		decodedCiphertext, err = internal.DecodeBase64(unwrappedCiphertext)
+		decodedCiphertext, errC = internal.DecodeBase64(unwrappedCiphertext)
 	case vaultmode.Encodings.Base64url:
 		decodedSalt, err = internal.DecodeBase64Url(message.Salt)
-		decodedCiphertext, err = internal.DecodeBase64Url(unwrappedCiphertext)
+		decodedCiphertext, errC = internal.DecodeBase64Url(unwrappedCiphertext)
 	}
 	if err != nil {
+		return "", "", err
+	}
+	if errC != nil {
 		return "", "", err
 	}
 
