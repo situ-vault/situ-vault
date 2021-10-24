@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/storage"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/storage"
 )
 
 func wdListUri() (fyne.ListableURI, error) {
@@ -12,6 +12,6 @@ func wdListUri() (fyne.ListableURI, error) {
 	if err != nil {
 		return nil, err
 	}
-	listUri, err := driver.ListerForURI(storage.NewFileURI(wd))
+	listUri, err := storage.ListerForURI(storage.NewFileURI(wd))
 	return listUri, err
 }

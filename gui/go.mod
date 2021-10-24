@@ -3,18 +3,19 @@ module github.com/situ-vault/situ-vault/gui
 go 1.17
 
 require (
-	fyne.io/fyne v1.4.3
+	fyne.io/fyne/v2 v2.0.0
 	github.com/situ-vault/situ-vault/pkg v0.0.0
 	github.com/stretchr/testify v1.7.0
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/fsnotify/fsnotify v1.5.1 // indirect
+	github.com/fredbi/uri v0.0.0-20181227131451-3dcfdacbaaf3 // indirect
+	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/fyne-io/mobile v0.1.2 // indirect
 	github.com/go-gl/gl v0.0.0-20210905235341-f7a045908259 // indirect
-	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20211024062804-40e447a793be // indirect
-	github.com/godbus/dbus/v5 v5.0.5 // indirect
+	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200625191551-73d3c3675aa3 // indirect
+	github.com/godbus/dbus/v5 v5.0.3 // indirect
 	github.com/goki/freetype v0.0.0-20181231101311-fa8a33aabaff // indirect
 	github.com/nicksnyder/basen v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

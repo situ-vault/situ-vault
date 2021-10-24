@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"fyne.io/fyne/test"
+	"fyne.io/fyne/v2/test"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/situ-vault/situ-vault/pkg/testdata"
