@@ -298,7 +298,7 @@ func (exp *experience) loadUi(application fyne.App) {
 	// workaround to give it a bit more space to breathe
 	space := canvas.NewRectangle(color.White)
 	space.SetMinSize(fyne.NewSize(20, 20))
-	content := fyne.NewContainerWithLayout(
+	content := container.New(
 		layout.NewBorderLayout(space, space, space, space),
 		appTabs,
 	)

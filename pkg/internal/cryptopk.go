@@ -66,7 +66,7 @@ func decryptNaclBox(data []byte, boxKeys BoxKeys) ([]byte, error) {
 	var out = make([]byte, 1)
 	decrypted, ok := box.Open(out, data, &boxKeys.Nonce, &boxKeys.OtherPublicKey, &boxKeys.OwnPrivateKey)
 	if !ok {
-		err := errors.New("Failed to decrypt box.")
+		err := errors.New("failed to decrypt box")
 		return nil, err
 	}
 	return decrypted[1:], nil

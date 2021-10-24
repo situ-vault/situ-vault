@@ -20,6 +20,7 @@ func testPk(
 	dec func(data []byte, boxKeys BoxKeys) ([]byte, error)) {
 	data := []byte("test-data")
 	recipientKeys := newBoxKeyPair()
+	_ = recipientKeys.debug()
 	ephemeralSenderKeys := newBoxKeyPair()
 
 	boxKeysEncrypt := BoxKeys{
