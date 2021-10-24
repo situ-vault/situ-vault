@@ -7,6 +7,10 @@ on:
 env:
   GO_VERSION: '1.17.x'
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
 
   test:
@@ -98,17 +102,21 @@ jobs:
 
   package-gui:
     name: Package GUI
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.run-on }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ 'linux', 'darwin', 'windows' ]
-        arch: [ 'amd64' ]
         include:
+          # cross-compilation would require more setup, see https://developer.fyne.io/started/cross-compiling
           - os: 'linux'
-            arch: 'arm64'
-          - os: 'linux'
-            arch: '386'
-          # TODO add build for darwin/arm64 when supported in fyne-cross
+            arch: 'amd64'
+            run-on: 'ubuntu-20.04'
+          - os: 'darwin'
+            arch: 'amd64'
+            run-on: 'macos-11'
+          - os: 'windows'
+            arch: 'amd64'
+            run-on: 'windows-2019'
 
     steps:
       - name: Set up Go
@@ -120,31 +128,37 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Setup fyne-cross
-        working-directory: build
-        run: |
-          go mod download
-          go install github.com/fyne-io/fyne-cross
+      - name: Install fyne dependency packages
+        if: ${{ matrix.os == 'linux' }}
+        run: >
+          sudo apt-get update -y -qq &&
+          sudo apt-get install -y -qq
+          libgl1-mesa-dev
+          libegl1-mesa-dev
+          libgles2-mesa-dev
+          xorg-dev
 
-      - name: Vendor dependencies for GUI
+      - name: Install fyne
+        run: |
+          go get fyne.io/fyne/v2/cmd/fyne@v2.1.1
+          fyne version
+
+      - name: Package fyne GUI
         working-directory: gui
         run: |
-          go mod vendor
-
-      - name: Build fyne GUI
-        working-directory: gui
-        run: |
-          fyne-cross "$MATRIX_OS" -arch="$MATRIX_ARCH" -output=situ-vault ./situ-vault
+          fyne package -os="$MATRIX_OS" -name="$APP_NAME" -appID="$APP_ID" -sourceDir="situ-vault"
+          ls -lR
         env:
           MATRIX_OS: ${{ matrix.os }}
-          MATRIX_ARCH: ${{ matrix.arch }}
+          APP_ID: "io.github.situ-vault.gui"
+          APP_NAME: "situ-vault"
 
       - name: Create tar for GUI
         working-directory: gui
         # only needed for macos to keep the executable flag
         if: ${{ matrix.os == 'darwin' }}
         run: |
-          DIST_FOLDER="fyne-cross/dist/$MATRIX_OS-$MATRIX_ARCH"
+          DIST_FOLDER="."
           tar -v -c -z -C "$DIST_FOLDER" -f "$DIST_FOLDER/situ-vault.app.tar.gz" "situ-vault.app"
         env:
           MATRIX_OS: ${{ matrix.os }}
@@ -155,7 +169,8 @@ jobs:
         with:
           name: ${{ format('situ-vault-gui-{0}-{1}', matrix.os, matrix.arch) }}
           path: |
-            ${{ format('gui/fyne-cross/dist/{0}-{1}/situ-vault.app.tar.gz', matrix.os, matrix.arch) }}
-            ${{ format('gui/fyne-cross/dist/{0}-{1}/situ-vault.tar.gz', matrix.os, matrix.arch) }}
-            ${{ format('gui/fyne-cross/dist/{0}-{1}/situ-vault.zip', matrix.os, matrix.arch) }}
+            gui/situ-vault.app.tar.gz
+            gui/situ-vault.tar.xz
+            gui/situ-vault/situ-vault.exe
           retention-days: 1
+          if-no-files-found: error
