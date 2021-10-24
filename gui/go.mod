@@ -1,6 +1,6 @@
 module github.com/situ-vault/situ-vault/gui
 
-go 1.16
+go 1.17
 
 require (
 	fyne.io/fyne v1.4.3

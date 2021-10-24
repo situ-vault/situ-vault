@@ -1,6 +1,6 @@
 module github.com/situ-vault/situ-vault/pkg
 
-go 1.16
+go 1.17
 
 require (
 	github.com/nicksnyder/basen v1.0.0

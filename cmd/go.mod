@@ -1,6 +1,6 @@
 module github.com/situ-vault/situ-vault/cmd
 
-go 1.16
+go 1.17
 
 require (
 	github.com/situ-vault/situ-vault/pkg v0.0.0
