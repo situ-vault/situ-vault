@@ -2,6 +2,9 @@ package main
 
 import (
 	"errors"
+	"image/color"
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -9,8 +12,6 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"image/color"
-	"time"
 
 	"github.com/situ-vault/situ-vault/pkg/vault"
 	"github.com/situ-vault/situ-vault/pkg/vault/vaultmode"
