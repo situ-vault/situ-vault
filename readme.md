@@ -206,3 +206,32 @@ The combination of algorithms in use can be compared to other well-established t
         * hex encoded salt
         * hex encoded HMAC of the ciphertext
         * hex encoded ciphertext (newlines after 80 characters)
+
+## Development
+
+### Run all tests
+
+```shell
+for directory in pkg cmd gui
+do
+  ( cd "$directory" && go test ./... )
+done
+```
+
+### Upgrade dependencies
+
+```shell
+for directory in pkg cmd gui
+do
+  ( 
+    cd "$directory" 
+    go get -u ./...
+    echo 'resetting pkg replace version'
+    sed -i '' 's:situ-vault/pkg v[0-9]*.[0-9]*.[0-9]*$:situ-vault/pkg v0.0.0:g' go.mod
+    echo 'cleaning checksums'
+    rm go.sum
+    go mod tidy
+    go test ./... 
+  )
+done
+```

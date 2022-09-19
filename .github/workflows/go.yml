@@ -8,10 +8,10 @@ jobs:
 
   test:
     name: Test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        go: ['1.14.x', '1.15.x', '1.16.x', '1.17.x']
+        go: [ '1.19.x' ]
         module: [ 'pkg', 'cmd', 'gui' ]
     steps:
 
