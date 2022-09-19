@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        go: [ '1.17.x' ]
+        go: [ '1.19.x' ]
         module: [ 'pkg', 'cmd', 'gui' ]
     steps:
 
