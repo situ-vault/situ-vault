@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/base64"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -45,10 +44,10 @@ func transform(manifest *Manifest, wd string) {
 
 func transformFile(wd string, filePath string, password string) {
 	var content []byte
-	content, err := ioutil.ReadFile(filePath)
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		// also try with an explicit working directory:
-		content, err = ioutil.ReadFile(wd + filePath)
+		content, err = os.ReadFile(wd + filePath)
 		if err != nil {
 			logStderr.Fatal("Failed to read file: ", os.Args[1])
 		}

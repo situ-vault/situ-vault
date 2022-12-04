@@ -1,7 +1,6 @@
 package vault
 
 import (
-	"io/ioutil"
 	"net/url"
 	"os"
 	"strings"
@@ -27,7 +26,7 @@ func maybeFromFile(s string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		file, err := ioutil.ReadFile(path)
+		file, err := os.ReadFile(path)
 		if err != nil {
 			return "", err
 		}
