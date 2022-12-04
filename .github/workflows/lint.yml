@@ -21,7 +21,6 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
-          stable: ${{ !contains(env.GO_VERSION, 'rc') }}
 
       - name: Install linters
         run: |

@@ -33,7 +33,6 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
-          stable: ${{ !contains(env.GO_VERSION, 'rc') }}
 
       - name: Check out code
         uses: actions/checkout@v3
@@ -86,7 +85,6 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
-          stable: ${{ !contains(env.GO_VERSION, 'rc') }}
 
       - name: Check out code
         uses: actions/checkout@v3

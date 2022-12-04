@@ -19,7 +19,6 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
-          stable: ${{ !contains(matrix.go, 'rc') }}
 
       - name: Check out code
         uses: actions/checkout@v3
