@@ -1,3 +1,5 @@
+<img style="float:right;" width="206" height="206" src="https://raw.githubusercontent.com/situ-vault/situ-vault/main/gui/situ-vault/icon/icon.png" alt="situ-vault app lock icon">
+
 # situ-vault
 
 > Handling secrets like a piece of cake!
@@ -235,3 +237,7 @@ do
   )
 done
 ```
+
+## Attribution
+
+The situ-vault app icon emoji is from [OpenMoji](https://openmoji.org/). Icon license: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/#)

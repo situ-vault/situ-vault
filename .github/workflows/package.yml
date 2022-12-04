@@ -101,13 +101,15 @@ jobs:
 
       - name: Install fyne
         run: |
-          go install fyne.io/fyne/v2/cmd/fyne@v2.2.4
+          go install fyne.io/fyne/v2/cmd/fyne@v2.1.4
           fyne version
 
       - name: Package fyne GUI
         working-directory: gui
         run: |
-          fyne package -os="$MATRIX_OS" -name="$APP_NAME" -appID="$APP_ID" -sourceDir="situ-vault"
+          fyne package --os="$MATRIX_OS" --name="$APP_NAME" --appID="$APP_ID" \
+          --src="$PWD/situ-vault" \
+          --icon="$PWD/situ-vault/icon/icon.png"
           ls -lR
         env:
           MATRIX_OS: ${{ matrix.os }}
