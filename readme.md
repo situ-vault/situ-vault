@@ -1,4 +1,6 @@
-<img style="float:right;" width="206" height="206" src="https://raw.githubusercontent.com/situ-vault/situ-vault/main/gui/situ-vault/icon/icon.png" alt="situ-vault app lock icon">
+<a id="situ-vault-logo" href="#situ-vault-logo">
+<img align="right" width="206" height="206" src="https://raw.githubusercontent.com/situ-vault/situ-vault/main/gui/situ-vault/icon/icon.png" alt="situ-vault app lock icon">
+</a>
 
 # situ-vault
 
@@ -71,17 +73,23 @@ Surrounding whitespace around ciphertexts is cleaned before parsing.
 
 #### Encrypt
 
+<a id="situ-vault-encrypt" href="#situ-vault-encrypt">
 <img alt="Encrypt GUI situ-vault" max-height="500px" src="https://raw.githubusercontent.com/situ-vault/situ-vault/main/doc/screens/encrypt.png">
+</a>
 
 #### Decrypt
 
+<a id="situ-vault-decrypt" href="#situ-vault-decrypt">
 <img alt="Decrypt GUI situ-vault" max-height="500px" src="https://raw.githubusercontent.com/situ-vault/situ-vault/main/doc/screens/decrypt.png">
+</a>
 
 #### Custom Mode
 
 The GUI also allows to select the algorithms and other parameters for a custom vault mode:
 
+<a id="situ-vault-mode" href="#situ-vault-mode">
 <img alt="Encrypt GUI custom mode situ-vault" max-height="500px" src="https://raw.githubusercontent.com/situ-vault/situ-vault/main/doc/screens/mode.png">
+</a>
 
 ### Kustomize
 
@@ -181,8 +189,80 @@ After 120 characters | n/a | ``"CH120"``
 
 Schematic overview over the steps during encryption:
 
-<!-- image source in: './doc/diagram' rendered in theme: 'neutral' -->
-<img alt="Encryption Schema" height="700" src="https://raw.githubusercontent.com/situ-vault/situ-vault/main/doc/diagrams/encrypt.svg">
+```mermaid
+graph TB
+
+    %% user inputs:
+    pw[/Password/]
+    cleartext[/Cleartext/]
+    mode[/Vaultmode/]
+
+    style pw stroke:#333,stroke-width:5px
+    style cleartext stroke:#333,stroke-width:5px
+    style mode stroke:#333,stroke-width:5px
+    
+    mode -.- rnd
+    mode -.- kdf
+    mode -.- ae
+    mode -.- encode
+    mode -.- lb
+    
+    %% mode influences subprocesses: (link styling not for ids)
+    linkStyle 0 stroke:#808080,stroke-width:1px,stroke-dasharray: 5 5
+    linkStyle 1 stroke:#808080,stroke-width:1px,stroke-dasharray: 5 5
+    linkStyle 2 stroke:#808080,stroke-width:1px,stroke-dasharray: 5 5
+    linkStyle 3 stroke:#808080,stroke-width:1px,stroke-dasharray: 5 5
+    linkStyle 4 stroke:#808080,stroke-width:1px,stroke-dasharray: 5 5
+    
+    %% key derivation:
+    rnd[[Random Generator]]
+    salt[/Salt/]
+    rnd --> salt
+    kdf[[Key Derivation Function]]
+    pw --> kdf
+    salt --> kdf
+    key[/Key/]
+    iv[/IV/]
+    kdf --> key
+    kdf --> iv
+    
+    %% encryption:
+    ae[[Authenticated Encryption]]
+    key --> ae
+    iv --> ae
+    cleartext-->ae
+    ae --> ciphertext
+    ciphertext[/Ciphertext & Tag/]
+    
+    %% encoding:
+    encode[[Text Encoding]]
+    salt --> encode
+    ciphertext --> encode
+    encode --> ciphertextEnc
+    encode --> saltEnc
+    ciphertextEnc[/Ciphertext & Tag Encoded/]
+    saltEnc[/Salt Encoded/]
+    
+    %% line wrap:
+    lb[Line Breaking]
+    ciphertextWrapped[/Ciphertext & Tag Text Lines/]
+    ciphertextEnc --> lb
+    lb --> ciphertextWrapped
+    
+    %% concat message:
+    version[/Version Prefix/]
+    concat[Concatenation]
+    message[/Vaultmessage/]
+    style message stroke:#333,stroke-width:5px
+
+    version --> concat
+    mode --> concat
+    saltEnc --> concat
+    ciphertextWrapped --> concat
+
+    concat --> message
+
+```
 
 ### Comparison
 
