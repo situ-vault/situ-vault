@@ -30,13 +30,13 @@ jobs:
     steps:
 
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
           stable: ${{ !contains(env.GO_VERSION, 'rc') }}
 
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Go install
         working-directory: cmd
@@ -56,7 +56,7 @@ jobs:
           RESULT_TAR_NAME: ${{ format('situ-vault-cli-{0}-{1}.tar.gz', matrix.os, matrix.arch) }}
 
       - name: Upload CLI dist
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ format('situ-vault-cli-{0}-{1}', matrix.os, matrix.arch) }}
           path: ${{ format('cmd/dist/situ-vault-cli-{0}-{1}.tar.gz', matrix.os, matrix.arch) }}
@@ -83,13 +83,13 @@ jobs:
 
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
           stable: ${{ !contains(env.GO_VERSION, 'rc') }}
 
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install fyne dependency packages
         if: ${{ matrix.os == 'linux' }}
@@ -103,7 +103,7 @@ jobs:
 
       - name: Install fyne
         run: |
-          go get fyne.io/fyne/v2/cmd/fyne@v2.1.1
+          go install fyne.io/fyne/v2/cmd/fyne@v2.2.4
           fyne version
 
       - name: Package fyne GUI
@@ -128,7 +128,7 @@ jobs:
           MATRIX_ARCH: ${{ matrix.arch }}
 
       - name: Upload GUI dist
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ format('situ-vault-gui-{0}-{1}', matrix.os, matrix.arch) }}
           path: |
