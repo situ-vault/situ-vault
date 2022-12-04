@@ -1,7 +1,6 @@
 package vault
 
 import (
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -47,7 +46,7 @@ func Test_maybeFromFileDirect(t *testing.T) {
 }
 
 func testFile(t *testing.T, name string, content string) *os.File {
-	f, err := ioutil.TempFile("", name)
+	f, err := os.CreateTemp("", name)
 	assert.Nil(t, err)
 	_, err = f.WriteString(content)
 	assert.Nil(t, err)

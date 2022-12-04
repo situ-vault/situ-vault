@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -31,7 +30,7 @@ func main() {
 	}
 
 	// second argument is the file path
-	content, err := ioutil.ReadFile(os.Args[1])
+	content, err := os.ReadFile(os.Args[1])
 	if err != nil {
 		logStderr.Fatal("Failed to read file: ", os.Args[1])
 	}
