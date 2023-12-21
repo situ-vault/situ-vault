@@ -29,13 +29,16 @@ jobs:
             arch: 'arm64'
     steps:
 
+      - name: Check out code
+        uses: actions/checkout@v4
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
-
-      - name: Check out code
-        uses: actions/checkout@v4
+          cache-dependency-path: |
+            cmd/go.sum
+            pkg/go.sum
 
       - name: Go install
         working-directory: cmd
@@ -81,13 +84,17 @@ jobs:
             run-on: 'windows-2022'
 
     steps:
+
+      - name: Check out code
+        uses: actions/checkout@v4
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
-
-      - name: Check out code
-        uses: actions/checkout@v4
+          cache-dependency-path: |
+            gui/go.sum
+            pkg/go.sum
 
       - name: Install fyne dependency packages
         if: ${{ matrix.os == 'linux' }}

@@ -15,13 +15,14 @@ jobs:
         module: [ 'pkg', 'cmd', 'gui' ]
     steps:
 
+      - name: Check out code
+        uses: actions/checkout@v4
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
-
-      - name: Check out code
-        uses: actions/checkout@v4
+          cache-dependency-path: ${{ matrix.module }}/go.sum
 
       - name: Get dependencies
         working-directory: ${{ matrix.module }}
