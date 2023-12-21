@@ -30,12 +30,12 @@ jobs:
     steps:
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Go install
         working-directory: cmd
@@ -55,7 +55,7 @@ jobs:
           RESULT_TAR_NAME: ${{ format('situ-vault-cli-{0}-{1}.tar.gz', matrix.os, matrix.arch) }}
 
       - name: Upload CLI dist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ format('situ-vault-cli-{0}-{1}', matrix.os, matrix.arch) }}
           path: ${{ format('cmd/dist/situ-vault-cli-{0}-{1}.tar.gz', matrix.os, matrix.arch) }}
@@ -82,12 +82,12 @@ jobs:
 
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install fyne dependency packages
         if: ${{ matrix.os == 'linux' }}
@@ -128,7 +128,7 @@ jobs:
           MATRIX_ARCH: ${{ matrix.arch }}
 
       - name: Upload GUI dist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ format('situ-vault-gui-{0}-{1}', matrix.os, matrix.arch) }}
           path: |
