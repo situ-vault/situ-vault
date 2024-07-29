@@ -75,7 +75,7 @@ jobs:
           # cross-compilation would require more setup, see https://developer.fyne.io/started/cross-compiling
           - os: 'linux'
             arch: 'amd64'
-            run-on: 'ubuntu-22.04'
+            run-on: 'ubuntu-24.04'
           - os: 'darwin'
             arch: 'amd64'
             run-on: 'macos-12'

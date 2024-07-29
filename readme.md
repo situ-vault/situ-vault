@@ -300,6 +300,15 @@ do
 done
 ```
 
+### Run all checks
+
+```shell
+for directory in pkg cmd gui
+do
+  ( cd "$directory" && go vet -tags ci ./... && staticcheck ./... )
+done
+```
+
 ### Upgrade dependencies
 
 ```shell
