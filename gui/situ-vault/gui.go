@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"image/color"
+	"slices"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -91,7 +92,9 @@ func newUi(w fyne.Window, model *model, action func(), refresh func(), showError
 	// there is no data binding in fyne yet, thus manually:
 	syncModes := func() {
 		for _, mode := range modes {
-			u.modes.Append(mode)
+			if !slices.Contains(u.modes.Options, mode) {
+				u.modes.Append(mode)
+			}
 		}
 	}
 	updateModelFromUi := func() {
