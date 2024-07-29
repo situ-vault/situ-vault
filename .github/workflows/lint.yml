@@ -5,13 +5,13 @@ on:
   pull_request:
 
 env:
-  GO_VERSION: '1.21.x'
+  GO_VERSION: '1.22.x'
 
 jobs:
 
   lint:
     name: Lint
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         module: [ 'pkg', 'cmd', 'gui' ]
@@ -29,7 +29,7 @@ jobs:
       - name: Install linters
         run: |
           go install golang.org/x/tools/cmd/goimports@latest
-          go install honnef.co/go/tools/cmd/staticcheck@2023.1.6
+          go install honnef.co/go/tools/cmd/staticcheck@2023.1.7
 
       - name: Install fyne dependency packages
         if: ${{ matrix.module == 'gui' }}

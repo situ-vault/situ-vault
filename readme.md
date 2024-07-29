@@ -41,10 +41,12 @@ well as its configuration.
 With flags: (not recommended)
 
 ```
-situ-vault encrypt -password=test-pw -cleartext=test-data
+echo test-pw | read -s PW
+echo test-data | read -s DATA
+situ-vault encrypt -password=$PW -cleartext=$DATA
 SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32#LB:NO##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2##END
 
-situ-vault decrypt -password=test-pw -ciphertext="SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32#LB:NO##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2##END"
+situ-vault decrypt -password=$PW -ciphertext="SITU_VAULT_V1##C:AES256_GCM#KDF:PBKDF2_SHA256_I10K#SALT:R8B#ENC:BASE32#LB:NO##IYKEB5WQVTPEQ===##I5VS45LGEXJXLZYNU7SYDC3ROJSDPGR2VG7KQSF2##END"
 test-data
 ```
 
@@ -297,6 +299,15 @@ The combination of algorithms in use can be compared to other well-established t
 for directory in pkg cmd gui
 do
   ( cd "$directory" && go test ./... )
+done
+```
+
+### Run all checks
+
+```shell
+for directory in pkg cmd gui
+do
+  ( cd "$directory" && go vet -tags ci ./... && staticcheck ./... )
 done
 ```
 
