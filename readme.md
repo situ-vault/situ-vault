@@ -30,7 +30,7 @@ secrets locally and does not depend on a remote system like Hashicorp Vault, AWS
 captures its unique differentiator.
 
 *Side Note:* If the exact opposite is actually desired, thus not using local symmetric keys,
-then [sops](https://github.com/mozilla/sops) might be worth a look. However, the greater flexibility that sops offers
+then [sops](https://github.com/getsops/sops) might be worth a look. However, the greater flexibility that sops offers
 also results in more visible complexity, as apparent by the lengthy Yaml or Json structured files for the results as
 well as its configuration.
 
