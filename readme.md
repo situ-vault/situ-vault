@@ -311,6 +311,13 @@ do
 done
 ```
 
+### Run commands during development
+
+```shell
+go run ./cmd/situ-vault encrypt -password=hello -cleartext=world
+go run ./gui/situ-vault
+```
+
 ### Upgrade dependencies
 
 ```shell
