@@ -5,7 +5,7 @@ on:
   pull_request:
 
 env:
-  GO_VERSION: '1.22.x'
+  GO_VERSION: '1.24.x'
 
 jobs:
 
@@ -29,7 +29,7 @@ jobs:
       - name: Install linters
         run: |
           go install golang.org/x/tools/cmd/goimports@latest
-          go install honnef.co/go/tools/cmd/staticcheck@2023.1.7
+          go install honnef.co/go/tools/cmd/staticcheck@2025.1.1
 
       - name: Install fyne dependency packages
         if: ${{ matrix.module == 'gui' }}
